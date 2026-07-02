@@ -1,0 +1,8 @@
+requests
+beautifulsoup4
+feedparser
+pandas
+python-dotenv
+playwright
+fastapi
+uvicorn[standard]

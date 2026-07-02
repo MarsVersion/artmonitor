@@ -1,0 +1,61 @@
+city,source_name,source_url,source_type,trust_level,access_method,status,last_checked,notes
+Berlin,Hamburger Bahnhof,https://www.smb.museum/en/museums-institutions/hamburger-bahnhof/exhibitions/current/,museum,high,web,active,,Official current exhibitions page
+Berlin,Neue Nationalgalerie,https://www.smb.museum/en/museums-institutions/neue-nationalgalerie/exhibitions/current/,museum,high,web,active,,Official current exhibitions page
+Berlin,Berlinische Galerie,https://berlinischegalerie.de/en/exhibitions/,museum,high,web,active,,Official exhibitions page
+Berlin,KW Institute for Contemporary Art,https://www.kw-berlin.de/en/exhibitions/,museum,high,web,active,,Official exhibitions page
+Berlin,Gropius Bau,https://www.berlinerfestspiele.de/en/gropius-bau/program,museum,high,web,active,,Official programme page
+Berlin,Schinkel Pavillon,https://www.schinkelpavillon.de/,project_space,high,web,active,,Official website; verify exhibition extraction
+Berlin,Fluentum,https://www.fluentum.org/en/exhibitions/,project_space,high,web,active,,Official exhibitions page
+Berlin,KINDL – Centre for Contemporary Art,https://www.kindl-berlin.com/en/exhibitions/,project_space,high,web,active,,Official exhibitions page
+Berlin,Savvy Contemporary,https://savvy-contemporary.com/en/projects/,project_space,high,web,active,,Official projects page
+Berlin,Bärenzwinger Berlin,https://www.baerenzwinger.berlin/,project_space,medium,web,active,,Official website; verify current programme URL
+Berlin,Galerie Eigen + Art Berlin,https://eigen-art.com/en/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Berlin,Sprüth Magers Berlin,https://spruethmagers.com/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Berlin,KOW,https://kow-berlin.com/exhibitions,gallery,high,web,active,,Official exhibitions page
+Berlin,Esther Schipper,https://www.estherschipper.com/exhibitions,gallery,high,web,active,,Official exhibitions page
+Berlin,neugerriemschneider,https://neugerriemschneider.com/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Seoul,"National Museum of Modern and Contemporary Art, Korea",https://www.mmca.go.kr/eng/exhibitions/exhibitionsList.do,museum,high,playwright,active,,Official exhibitions page; likely dynamic
+Seoul,Leeum Museum of Art,https://www.leeumhoam.org/leeum/exhibition/now,museum,high,playwright,active,,Official exhibition page; likely dynamic
+Seoul,Seoul Museum of Art,https://sema.seoul.go.kr/en/whatson/landing,museum,high,playwright,active,,Official exhibitions & programs page
+Seoul,Art Sonje Center,https://artsonje.org/en/exhibition/,museum,high,web,active,,Official exhibitions page
+Seoul,Ilmin Museum of Art,https://www.ilmin.org/en/exhibition/,museum,high,web,active,,Official exhibitions page
+Seoul,Space Willing N Dealing,https://www.willingndealing.org/exhibitions,project_space,high,web,active,,Official exhibitions page
+Seoul,Audio Visual Pavilion,https://audiovisualpavilion.org/,project_space,medium,web,active,,Official website; verify extraction
+Seoul,Alternative Space LOOP,https://altspaceloop.com/,project_space,high,web,active,,Official website
+Seoul,d/p,,project_space,medium,manual,needs_review,,Official current URL needs confirmation before crawling
+Seoul,SeMA Storage,https://sema.seoul.go.kr/en/whatson/landing,project_space,high,playwright,active,,Use SeMA exhibitions page and filter/identify SeMA Storage
+Seoul,Gallery Hyundai,https://www.galleryhyundai.com/exhibitions,gallery,high,web,active,,Official exhibitions page
+Seoul,PKM Gallery,https://www.pkmgallery.com/,gallery,high,web,active,,Official website; exhibitions visible on homepage
+Seoul,Kukje Gallery,https://www.kukjegallery.com/exhibitions,gallery,high,web,active,,Official exhibitions page
+Seoul,Arario Gallery Seoul,https://www.arariogallery.com/,gallery,high,web,active,,Official website; Seoul exhibitions on homepage
+Seoul,Pace Gallery Seoul,https://www.pacegallery.com/galleries/seoul/,gallery,high,web,active,,Official Seoul gallery page
+Tokyo,Mori Art Museum,https://www.mori.art.museum/en/exhibitions/,museum,high,web,active,,Official exhibitions page
+Tokyo,Museum of Contemporary Art Tokyo,https://www.mot-art-museum.jp/en/exhibitions/,museum,high,web,active,,Official exhibitions page
+Tokyo,"The National Art Center, Tokyo",https://www.nact.jp/english/exhibition_special/,museum,high,web,active,,Official exhibitions page
+Tokyo,Watari Museum of Contemporary Art,https://www.watarium.co.jp/,museum,medium,web,active,,Official website; verify current exhibition extraction
+Tokyo,21_21 DESIGN SIGHT,https://www.2121designsight.jp/en/,museum,high,web,active,,Official website; current programme on homepage
+Tokyo,3331 Arts Chiyoda,https://www.3331.jp/en/,project_space,medium,web,active,,Official website; verify current operating/program status
+Tokyo,TALION GALLERY,https://www.taliongallery.com/,project_space,medium,web,active,,Official website; gallery/project-space model
+Tokyo,Tokyo Arts and Space,https://www.tokyoartsandspace.jp/en/exhibition/index/index.html,project_space,high,web,active,,Official exhibitions / performances page
+Tokyo,KAYOKOYUKI,https://www.kayokoyuki.com/en/exhibition.php,project_space,high,web,active,,Official exhibitions page
+Tokyo,ANOMALY,https://anomalytokyo.com/en/top/,project_space,high,web,active,,Official website with current/upcoming exhibitions
+Tokyo,Taka Ishii Gallery,https://www.takaishiigallery.com/en/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Tokyo,Mizuma Art Gallery,https://mizuma-art.co.jp/en/exhibition/,gallery,high,web,active,,Official exhibitions page
+Tokyo,Tomio Koyama Gallery,https://tomiokoyamagallery.com/en/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Tokyo,ShugoArts,https://shugoarts.com/en/exhibitions/,gallery,high,web,active,,Official exhibitions page
+Tokyo,Blum Tokyo,https://www.blum-gallery.com/exhibitions,gallery,high,web,active,,Official exhibitions page; filter for Tokyo if needed
+New York City,Museum of Modern Art,https://www.moma.org/calendar/exhibitions,museum,high,web,active,,Official exhibitions page
+New York City,Whitney Museum of American Art,https://whitney.org/exhibitions,museum,high,web,active,,Official exhibitions page
+New York City,Solomon R. Guggenheim Museum,https://www.guggenheim.org/exhibitions,museum,high,web,active,,Official exhibitions page
+New York City,New Museum,https://www.newmuseum.org/exhibitions/,museum,high,web,active,,Official exhibitions page
+New York City,The Metropolitan Museum of Art,https://www.metmuseum.org/exhibitions,museum,high,web,active,,Official exhibitions page
+New York City,Artists Space,https://artistsspace.org/exhibitions,project_space,high,web,active,,Official exhibitions page
+New York City,The Kitchen,https://thekitchen.org/exhibitions,project_space,high,web,active,,Official exhibitions page
+New York City,Swiss Institute,https://swissinstitute.net/exhibitions,project_space,high,web,active,,Official exhibitions page
+New York City,Participant Inc,https://participantinc.org/,project_space,high,web,active,,Official website; current exhibition on homepage
+New York City,SculptureCenter,https://www.sculpture-center.org/exhibitions/,project_space,high,web,active,,Official exhibitions page
+New York City,David Zwirner,https://www.davidzwirner.com/exhibitions,gallery,high,web,active,,Official exhibitions page; filter for New York if needed
+New York City,Gagosian,https://gagosian.com/exhibitions/,gallery,high,web,active,,Official exhibitions page; filter for New York if needed
+New York City,Pace Gallery,https://www.pacegallery.com/exhibitions/,gallery,high,web,active,,Official exhibitions page; filter for New York if needed
+New York City,Hauser & Wirth New York,https://www.hauserwirth.com/hauser-wirth-exhibitions/,gallery,high,web,active,,Official exhibitions page; filter for New York if needed
+New York City,Marian Goodman Gallery,https://www.mariangoodman.com/exhibitions/,gallery,high,web,active,,Official exhibitions page; filter for New York if needed

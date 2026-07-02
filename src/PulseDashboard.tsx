@@ -1,0 +1,489 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+type StatusPayload = {
+  database_path: string
+  sources_count: number
+  exhibitions_count: number
+  pulse_updates_count: number
+  last_crawl_at: string | null
+  blocked_or_inactive_sources: number
+  exhibitions_with_errors: number
+}
+
+type PulseRow = Record<string, string>
+type SourceRow = Record<string, string>
+
+type CrawlResult = {
+  success: boolean
+  message: string
+  sources_processed: number
+  errors: string[]
+}
+
+const REVIEW_OPTIONS = ['pending', 'approved', 'rejected', 'needs_edit'] as const
+
+function uniq(values: string[]): string[] {
+  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b))
+}
+
+function normalizeReview(raw: string): string {
+  const t = (raw || '').trim().toLowerCase()
+  if (!t || t === 'pending review') return 'pending'
+  if (REVIEW_OPTIONS.includes(t as (typeof REVIEW_OPTIONS)[number])) return t
+  return 'pending'
+}
+
+function pct(score: string | undefined): string {
+  const n = Number(score)
+  if (Number.isNaN(n)) return '—'
+  return `${Math.round(n * 100)}%`
+}
+
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const r = await fetch(path, init)
+  if (!r.ok) {
+    const text = await r.text()
+    throw new Error(text || r.statusText)
+  }
+  return r.json() as Promise<T>
+}
+
+export default function PulseDashboard() {
+  const [status, setStatus] = useState<StatusPayload | null>(null)
+  const [pulse, setPulse] = useState<PulseRow[]>([])
+  const [sources, setSources] = useState<SourceRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const [city, setCity] = useState('all')
+  const [sourceType, setSourceType] = useState('all')
+  const [pulseLabel, setPulseLabel] = useState('all')
+  const [fetchStatus, setFetchStatus] = useState('all')
+  const [reviewFilter, setReviewFilter] = useState('all')
+
+  const loadAll = useCallback(async () => {
+    setError(null)
+    setLoading(true)
+    try {
+      const [st, pu, src] = await Promise.all([
+        fetchJson<StatusPayload>('/api/status'),
+        fetchJson<PulseRow[]>('/api/pulse-updates'),
+        fetchJson<SourceRow[]>('/api/sources'),
+      ])
+      setStatus(st)
+      setPulse(pu)
+      setSources(src)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not load dashboard data.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void Promise.resolve().then(() => loadAll())
+  }, [loadAll])
+
+  const cities = useMemo(() => uniq(pulse.map((r) => r.city)), [pulse])
+  const sourceTypes = useMemo(() => uniq(sources.map((r) => r.source_type)), [sources])
+  const labels = useMemo(() => uniq(pulse.map((r) => r.pulse_label)), [pulse])
+  const fetchStatuses = useMemo(() => uniq(pulse.map((r) => r.fetch_status)), [pulse])
+  const reviews = useMemo(
+    () => uniq(pulse.map((r) => normalizeReview(r.human_review_status || ''))),
+    [pulse],
+  )
+
+  const filteredPulse = useMemo(() => {
+    return pulse.filter((r) => {
+      if (city !== 'all' && (r.city || '').trim() !== city) return false
+      if (pulseLabel !== 'all' && (r.pulse_label || '').trim() !== pulseLabel) return false
+      if (fetchStatus !== 'all' && (r.fetch_status || '').trim() !== fetchStatus) return false
+      const rv = normalizeReview(r.human_review_status || '')
+      if (reviewFilter !== 'all' && rv !== reviewFilter) return false
+      if (sourceType !== 'all') {
+        const url = (r.source_url || '').trim()
+        const match = sources.find((s) => (s.source_url || '').trim() === url)
+        if (!match || (match.source_type || '').trim() !== sourceType) return false
+      }
+      return true
+    })
+  }, [pulse, sources, city, sourceType, pulseLabel, fetchStatus, reviewFilter])
+
+  async function runCrawl() {
+    setBusy('crawl')
+    setError(null)
+    try {
+      const out = await fetchJson<CrawlResult>('/api/run-crawl', { method: 'POST' })
+      if (!out.success) setError(out.message || 'Crawl reported failure.')
+      await loadAll()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Crawl failed.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function genReport() {
+    setBusy('report')
+    setError(null)
+    try {
+      await fetchJson<{ message: string }>('/api/generate-report', { method: 'POST' })
+      await loadAll()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Report failed.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function saveReview(row: PulseRow, value: string) {
+    const id = Number.parseInt(row.exhibition_id || '', 10)
+    setBusy(`review-${id}`)
+    setError(null)
+    try {
+      await fetchJson('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          exhibition_id: Number.isFinite(id) ? id : undefined,
+          source_url: row.source_url,
+          exhibition_title: row.exhibition_title,
+          human_review_status: value,
+        }),
+      })
+      await loadAll()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Review update failed.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <div className="min-h-svh bg-stone-100 text-stone-900">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <header className="border-b border-stone-200 pb-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-stone-500">
+            Local editorial
+          </p>
+          <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-stone-900 sm:text-4xl">
+            ZAKPUM Pulse Monitor
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
+            Run the crawler, refresh pulse rows, and triage reviews — all on your machine. Start the
+            API with{' '}
+            <code className="rounded bg-stone-200/80 px-1.5 py-0.5 text-xs">
+              uvicorn backend.src.server:app --reload --port 8000
+            </code>{' '}
+            before using the buttons below.
+          </p>
+        </header>
+
+        <section className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <button
+            type="button"
+            onClick={() => void runCrawl()}
+            disabled={!!busy}
+            className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-stone-800 disabled:opacity-50"
+          >
+            {busy === 'crawl' ? 'Running crawl…' : 'Run crawl'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void genReport()}
+            disabled={!!busy}
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 shadow-sm transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            {busy === 'report' ? 'Generating…' : 'Generate report'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void loadAll()}
+            disabled={loading || !!busy}
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 shadow-sm transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            {loading ? 'Refreshing…' : 'Refresh data'}
+          </button>
+        </section>
+
+        {error ? (
+          <div
+            className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+            role="alert"
+          >
+            {error}
+          </div>
+        ) : null}
+
+        <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Sources" value={status?.sources_count} loading={loading} />
+          <StatCard label="Pulse updates" value={status?.pulse_updates_count} loading={loading} />
+          <StatCard
+            label="Last crawl"
+            value={status?.last_crawl_at ? formatWhen(status.last_crawl_at) : '—'}
+            loading={loading}
+          />
+          <StatCard
+            label="Blocked / errors"
+            value={
+              status
+                ? `${status.blocked_or_inactive_sources} blocked · ${status.exhibitions_with_errors} with errors`
+                : undefined
+            }
+            loading={loading}
+          />
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="font-serif text-lg text-stone-900">Filters</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <FilterSelect label="City" value={city} onChange={setCity} options={['all', ...cities]} />
+            <FilterSelect
+              label="Source type"
+              value={sourceType}
+              onChange={setSourceType}
+              options={['all', ...sourceTypes]}
+            />
+            <FilterSelect
+              label="Pulse label"
+              value={pulseLabel}
+              onChange={setPulseLabel}
+              options={['all', ...labels]}
+            />
+            <FilterSelect
+              label="Fetch status"
+              value={fetchStatus}
+              onChange={setFetchStatus}
+              options={['all', ...fetchStatuses]}
+            />
+            <FilterSelect
+              label="Review status"
+              value={reviewFilter}
+              onChange={setReviewFilter}
+              options={['all', ...reviews]}
+            />
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-serif text-xl text-stone-900">Pulse updates</h2>
+            <p className="text-sm text-stone-500">
+              {filteredPulse.length} shown{pulse.length ? ` of ${pulse.length}` : ''}
+            </p>
+          </div>
+          <div className="mt-4 flex flex-col gap-4">
+            {loading ? (
+              <p className="text-sm text-stone-500">Loading…</p>
+            ) : filteredPulse.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-stone-300 bg-white px-6 py-12 text-center text-sm text-stone-600">
+                No pulse rows match these filters. Run a crawl or widen filters.
+              </p>
+            ) : (
+              filteredPulse.map((row) => (
+                <article
+                  key={`${row.exhibition_id}-${row.source_url}-${row.exhibition_title}`}
+                  className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                        {row.city || '—'}
+                      </p>
+                      <h3 className="mt-1 font-serif text-lg text-stone-900">
+                        {row.institution || '—'}
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700">
+                        {row.pulse_label || '—'}
+                      </span>
+                      <span className="text-lg font-semibold text-stone-900">{pct(row.score)}</span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-stone-800">
+                    {row.exhibition_title || '—'}
+                  </p>
+                  <p className="mt-1 text-sm text-stone-600">
+                    <span className="text-stone-500">Artists:</span> {row.artist_names || '—'}
+                  </p>
+                  <p className="mt-1 text-sm text-stone-600">
+                    <span className="text-stone-500">Ends:</span> {row.end_date || '—'}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-stone-700">
+                    {row.public_summary || '—'}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-4 text-xs text-stone-600">
+                    {row.entry_fee ? (
+                      <span>
+                        <span className="font-semibold text-stone-500">Entry</span> {row.entry_fee}
+                      </span>
+                    ) : null}
+                    {row.audio_guide_available ? (
+                      <span>
+                        <span className="font-semibold text-stone-500">Audio</span>{' '}
+                        {row.audio_guide_available}
+                        {row.audio_guide_languages
+                          ? ` · ${row.audio_guide_languages}`
+                          : ''}
+                      </span>
+                    ) : null}
+                    {row.amenities ? (
+                      <span>
+                        <span className="font-semibold text-stone-500">Amenities</span>{' '}
+                        {row.amenities}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-4 text-sm">
+                    <span className="text-stone-500">Fetch:</span>
+                    <span className="font-medium capitalize text-stone-800">
+                      {row.fetch_status || '—'}
+                    </span>
+                    {row.source_url ? (
+                      <a
+                        href={row.source_url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+                      >
+                        Open source
+                      </a>
+                    ) : null}
+                  </div>
+                  {(row.error_detail || '').trim() ? (
+                    <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-900">
+                      {row.error_detail}
+                    </p>
+                  ) : null}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                      Human review
+                    </label>
+                    <select
+                      className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+                      value={normalizeReview(row.human_review_status || '')}
+                      disabled={busy?.startsWith('review-')}
+                      onChange={(e) => void saveReview(row, e.target.value)}
+                    >
+                      {REVIEW_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="mt-14">
+          <h2 className="font-serif text-xl text-stone-900">Source coverage</h2>
+          <p className="mt-1 text-sm text-stone-600">Registry rows from sources.csv</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {sources.map((s) => (
+              <div
+                key={`${s.source_url}-${s.source_name}`}
+                className="rounded-xl border border-stone-200 bg-white p-4 text-sm shadow-sm"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  {s.city || '—'}
+                </p>
+                <p className="mt-1 font-medium text-stone-900">{s.source_name || '—'}</p>
+                <dl className="mt-3 space-y-1 text-stone-600">
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-stone-500">Type</dt>
+                    <dd>{s.source_type || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-stone-500">Access</dt>
+                    <dd className="text-right">{s.access_method || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-stone-500">Status</dt>
+                    <dd className="capitalize">{s.status || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-stone-500">Last checked</dt>
+                    <dd className="max-w-[55%] truncate text-right text-xs">
+                      {s.last_checked ? formatWhen(s.last_checked) : '—'}
+                    </dd>
+                  </div>
+                </dl>
+                {s.notes ? <p className="mt-2 text-xs text-stone-500">{s.notes}</p> : null}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <footer className="mt-16 border-t border-stone-200 pt-6 text-xs text-stone-500">
+          <p>
+            Database:{' '}
+            <code className="rounded bg-stone-200/60 px-1 py-0.5">{status?.database_path}</code>
+          </p>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+function StatCard({
+  label,
+  value,
+  loading,
+}: {
+  label: string
+  value: string | number | undefined
+  loading: boolean
+}) {
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-stone-900">
+        {loading ? '…' : value === undefined || value === '' ? '—' : value}
+      </p>
+    </div>
+  )
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: string[]
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</span>
+      <select
+        className="rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 text-stone-900"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o === 'all' ? 'All' : o}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+function formatWhen(iso: string): string {
+  try {
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return iso
+    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+  } catch {
+    return iso
+  }
+}

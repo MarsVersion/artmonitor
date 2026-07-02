@@ -1,0 +1,6 @@
+city,source_name,source_url,source_type,trust_level,notes
+Berlin,Berlinische Galerie,https://berlinischegalerie.de/en/exhibitions/,museum,high,Official exhibition page
+Berlin,KW Institute,https://www.kw-berlin.de/en/exhibitions/,museum,high,Official exhibition page
+Seoul,MMCA,https://www.mmca.go.kr/eng/exhibitions/exhibitionsList.do,museum,high,Official museum page
+Paris,Palais de Tokyo,https://palaisdetokyo.com/en/exhibitions/,museum,high,Official exhibition page
+New York,MoMA,https://www.moma.org/calendar/exhibitions,museum,high,Official exhibition page

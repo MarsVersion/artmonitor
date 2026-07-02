@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-family-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-family-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  @apply font-sans;
+  background: var(--app-bg);
+  color: var(--app-fg);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --app-bg: #f6f4ef;
+    --app-fg: #1a1814;
+    --app-muted: #5c574d;
+    --app-card: #fffcf5;
+    --app-border: #e2ddd2;
+    --app-accent: #8b4513;
+    --app-accent-soft: rgba(139, 69, 19, 0.12);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-bg: #0f0e0c;
+    --app-fg: #f2efe6;
+    --app-muted: #9a9488;
+    --app-card: #1a1816;
+    --app-border: #2d2a26;
+    --app-accent: #d4a574;
+    --app-accent-soft: rgba(212, 165, 116, 0.15);
+  }
+}

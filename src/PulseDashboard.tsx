@@ -1,4 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  admissionDisplay,
+  filterExhibitions,
+  formatArtists,
+  formatDateRange,
+  uniqCities,
+  type AdmissionFilter,
+} from './lib/exhibitionFilters'
+import { ADMISSION_FILTER_OPTIONS, type EnrichedExhibition } from './types'
 
 type StatusPayload = {
   database_path: string
@@ -50,13 +59,17 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 export default function PulseDashboard() {
   const [status, setStatus] = useState<StatusPayload | null>(null)
+  const [exhibitions, setExhibitions] = useState<EnrichedExhibition[]>([])
   const [pulse, setPulse] = useState<PulseRow[]>([])
   const [sources, setSources] = useState<SourceRow[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  const [inquiry, setInquiry] = useState('')
   const [city, setCity] = useState('all')
+  const [admission, setAdmission] = useState<AdmissionFilter>('all')
+
   const [sourceType, setSourceType] = useState('all')
   const [pulseLabel, setPulseLabel] = useState('all')
   const [fetchStatus, setFetchStatus] = useState('all')
@@ -66,12 +79,14 @@ export default function PulseDashboard() {
     setError(null)
     setLoading(true)
     try {
-      const [st, pu, src] = await Promise.all([
+      const [st, ex, pu, src] = await Promise.all([
         fetchJson<StatusPayload>('/api/status'),
+        fetchJson<EnrichedExhibition[]>('/api/exhibitions'),
         fetchJson<PulseRow[]>('/api/pulse-updates'),
         fetchJson<SourceRow[]>('/api/sources'),
       ])
       setStatus(st)
+      setExhibitions(ex)
       setPulse(pu)
       setSources(src)
     } catch (e) {
@@ -85,8 +100,19 @@ export default function PulseDashboard() {
     void Promise.resolve().then(() => loadAll())
   }, [loadAll])
 
-  const cities = useMemo(() => uniq(pulse.map((r) => r.city)), [pulse])
-  const sourceTypes = useMemo(() => uniq(sources.map((r) => r.source_type)), [sources])
+  const cities = useMemo(() => uniqCities(exhibitions), [exhibitions])
+
+  const filteredExhibitions = useMemo(
+    () =>
+      filterExhibitions(exhibitions, {
+        query: inquiry,
+        city,
+        admission,
+      }),
+    [exhibitions, inquiry, city, admission],
+  )
+
+  const sourceTypes = useMemo(() => uniq(sources.map((r) => r.source_type || r.category)), [sources])
   const labels = useMemo(() => uniq(pulse.map((r) => r.pulse_label)), [pulse])
   const fetchStatuses = useMemo(() => uniq(pulse.map((r) => r.fetch_status)), [pulse])
   const reviews = useMemo(
@@ -96,7 +122,6 @@ export default function PulseDashboard() {
 
   const filteredPulse = useMemo(() => {
     return pulse.filter((r) => {
-      if (city !== 'all' && (r.city || '').trim() !== city) return false
       if (pulseLabel !== 'all' && (r.pulse_label || '').trim() !== pulseLabel) return false
       if (fetchStatus !== 'all' && (r.fetch_status || '').trim() !== fetchStatus) return false
       const rv = normalizeReview(r.human_review_status || '')
@@ -113,7 +138,7 @@ export default function PulseDashboard() {
       }
       return true
     })
-  }, [pulse, sources, city, sourceType, pulseLabel, fetchStatus, reviewFilter])
+  }, [pulse, sources, sourceType, pulseLabel, fetchStatus, reviewFilter])
 
   async function runCrawl() {
     setBusy('crawl')
@@ -173,11 +198,11 @@ export default function PulseDashboard() {
             Local editorial
           </p>
           <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-stone-900 sm:text-4xl">
-            ZAKPUM Pulse Monitor
+            Yuranja Art Monitor
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
-            Run the crawler, refresh pulse rows, and triage reviews — all on your machine. Start the
-            API with{' '}
+            Search exhibitions by city, artist, venue, format, and visitor information. Run the
+            crawler and triage reviews on your machine. Start the API with{' '}
             <code className="rounded bg-stone-200/80 px-1.5 py-0.5 text-xs">
               uvicorn backend.src.server:app --reload --port 8000
             </code>{' '}
@@ -223,7 +248,7 @@ export default function PulseDashboard() {
 
         <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Sources" value={status?.sources_count} loading={loading} />
-          <StatCard label="Pulse updates" value={status?.pulse_updates_count} loading={loading} />
+          <StatCard label="Exhibitions" value={status?.exhibitions_count} loading={loading} />
           <StatCard
             label="Last crawl"
             value={status?.last_crawl_at ? formatWhen(status.last_crawl_at) : '—'}
@@ -241,9 +266,63 @@ export default function PulseDashboard() {
         </section>
 
         <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
-          <h2 className="font-serif text-lg text-stone-900">Filters</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <h2 className="font-serif text-lg text-stone-900">Inquiry</h2>
+          <p className="mt-1 text-sm text-stone-600">
+            Search city, country, exhibition, artist, curator, venue, format, category, admission,
+            amenities, and public summary.
+          </p>
+          <label className="mt-4 block">
+            <span className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              Inquiry
+            </span>
+            <input
+              type="search"
+              value={inquiry}
+              onChange={(event) => setInquiry(event.target.value)}
+              placeholder="City, exhibition, artist, venue, entrance fee, free admission…"
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-stone-900 shadow-sm outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+            />
+          </label>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <FilterSelect label="City" value={city} onChange={setCity} options={['all', ...cities]} />
+            <FilterSelect
+              label="Admission"
+              value={admission}
+              onChange={(value) => setAdmission(value as AdmissionFilter)}
+              options={ADMISSION_FILTER_OPTIONS.map((option) => option.value)}
+              labels={Object.fromEntries(
+                ADMISSION_FILTER_OPTIONS.map((option) => [option.value, option.label]),
+              )}
+            />
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-serif text-xl text-stone-900">Matching exhibitions</h2>
+            <p className="text-sm text-stone-500">
+              {filteredExhibitions.length} shown
+              {exhibitions.length ? ` of ${exhibitions.length}` : ''}
+            </p>
+          </div>
+          <div className="mt-4 flex flex-col gap-4">
+            {loading ? (
+              <p className="text-sm text-stone-500">Loading…</p>
+            ) : filteredExhibitions.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-stone-300 bg-white px-6 py-12 text-center text-sm text-stone-600">
+                No exhibitions match this inquiry. Try another city or adjust the filters.
+              </p>
+            ) : (
+              filteredExhibitions.map((row) => (
+                <ExhibitionCard key={`${row.slug}-${row.source_url}`} row={row} />
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="mt-14 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="font-serif text-lg text-stone-900">Pulse editorial filters</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
               label="Source type"
               value={sourceType}
@@ -311,27 +390,27 @@ export default function PulseDashboard() {
                     {row.exhibition_title || '—'}
                   </p>
                   <p className="mt-1 text-sm text-stone-600">
-                    <span className="text-stone-500">Artists:</span> {row.artist_names || '—'}
+                    <span className="text-stone-500">Artists:</span>{' '}
+                    {row.artist_names || row.artists || '—'}
                   </p>
                   <p className="mt-1 text-sm text-stone-600">
                     <span className="text-stone-500">Ends:</span> {row.end_date || '—'}
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-stone-700">
-                    {row.public_summary || '—'}
+                    {row.public_summary || row.reason || '—'}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-4 text-xs text-stone-600">
-                    {row.entry_fee ? (
+                    {row.admission_display || row.entry_fee ? (
                       <span>
-                        <span className="font-semibold text-stone-500">Entry</span> {row.entry_fee}
+                        <span className="font-semibold text-stone-500">Admission</span>{' '}
+                        {row.admission_display || row.entry_fee}
                       </span>
                     ) : null}
                     {row.audio_guide_available ? (
                       <span>
                         <span className="font-semibold text-stone-500">Audio</span>{' '}
                         {row.audio_guide_available}
-                        {row.audio_guide_languages
-                          ? ` · ${row.audio_guide_languages}`
-                          : ''}
+                        {row.audio_guide_languages ? ` · ${row.audio_guide_languages}` : ''}
                       </span>
                     ) : null}
                     {row.amenities ? (
@@ -435,6 +514,107 @@ export default function PulseDashboard() {
   )
 }
 
+function ExhibitionCard({ row }: { row: EnrichedExhibition }) {
+  const admission = admissionDisplay(row)
+  const reservationRequired = Boolean(row.admission?.reservationRequired)
+  const checkedAt = row.admission?.checkedAt || row.visitor_last_updated
+
+  return (
+    <article className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+            {row.city || '—'}
+            {row.country ? ` · ${row.country}` : ''}
+          </p>
+          <h3 className="mt-1 font-serif text-lg text-stone-900">{row.venue || '—'}</h3>
+        </div>
+        {row.format ? (
+          <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700">
+            {row.format}
+          </span>
+        ) : null}
+      </div>
+
+      <p className="mt-3 text-base font-medium text-stone-900">{row.title || '—'}</p>
+      <p className="mt-2 text-sm text-stone-600">
+        <span className="text-stone-500">Artists:</span> {formatArtists(row)}
+      </p>
+      <p className="mt-1 text-sm text-stone-600">
+        <span className="text-stone-500">Dates:</span> {formatDateRange(row)}
+      </p>
+
+      <dl className="mt-4 grid gap-2 text-sm text-stone-700 sm:grid-cols-2">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+            Entrance fee
+          </dt>
+          <dd className="mt-1">{admission}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+            Reservation
+          </dt>
+          <dd className="mt-1">{reservationRequired ? 'Required' : 'Not required / unknown'}</dd>
+        </div>
+        {row.openingHours ? (
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              Opening hours
+            </dt>
+            <dd className="mt-1">{row.openingHours}</dd>
+          </div>
+        ) : null}
+        {row.amenities ? (
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              Amenities
+            </dt>
+            <dd className="mt-1">{row.amenities}</dd>
+          </div>
+        ) : null}
+        {checkedAt ? (
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              Admission verified
+            </dt>
+            <dd className="mt-1">{formatWhen(checkedAt)}</dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {row.public_summary || row.description || row.yuranjaNote ? (
+        <p className="mt-4 text-sm leading-relaxed text-stone-700">
+          {row.public_summary || row.description || row.yuranjaNote}
+        </p>
+      ) : null}
+
+      <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-4 text-sm">
+        {row.source_url ? (
+          <a
+            href={row.source_url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+          >
+            Open source
+          </a>
+        ) : null}
+        {row.website ? (
+          <a
+            href={row.website}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-stone-700 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+          >
+            Venue website
+          </a>
+        ) : null}
+      </div>
+    </article>
+  )
+}
+
 function StatCard({
   label,
   value,
@@ -459,11 +639,13 @@ function FilterSelect({
   value,
   onChange,
   options,
+  labels,
 }: {
   label: string
   value: string
   onChange: (v: string) => void
   options: string[]
+  labels?: Record<string, string>
 }) {
   return (
     <label className="flex flex-col gap-1 text-sm">
@@ -475,7 +657,7 @@ function FilterSelect({
       >
         {options.map((o) => (
           <option key={o} value={o}>
-            {o === 'all' ? 'All' : o}
+            {labels?.[o] || (o === 'all' ? 'All' : o)}
           </option>
         ))}
       </select>

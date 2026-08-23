@@ -1,4 +1,4 @@
-"""FastAPI local dashboard API for ZAKPUM Pulse Monitor."""
+"""FastAPI local dashboard API for Yuranja Art Monitor."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -16,10 +16,11 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import database
+import exhibition_enrich
 import export
 import main as pulse_main
 
-app = FastAPI(title="ZAKPUM Pulse Monitor API", version="1.0.0")
+app = FastAPI(title="Yuranja Art Monitor API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +41,58 @@ def _read_csv_as_json(path: Path) -> list[dict[str, Any]]:
         return []
     with path.open(newline="", encoding="utf-8") as f:
         return [dict(r) for r in csv.DictReader(f)]
+
+
+def _load_enriched_exhibitions(
+    *,
+    query: str = "",
+    city: str = "",
+    admission: str = "all",
+) -> list[dict[str, Any]]:
+    conn = database.connect()
+    visitor_index = exhibition_enrich.load_visitor_index()
+    rows = exhibition_enrich.enrich_rows(
+        exhibition_enrich.load_exhibition_rows(conn),
+        visitor_index,
+    )
+    return exhibition_enrich.filter_exhibitions(
+        rows,
+        query=query,
+        city=city,
+        admission=admission,
+    )
+
+
+def _enrich_pulse_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    visitor_index = exhibition_enrich.load_visitor_index()
+    enriched: list[dict[str, Any]] = []
+    for source_row in rows:
+        row = dict(source_row)
+        merged = exhibition_enrich.enrich_exhibition_row(row, visitor_index)
+        for field in (
+            "entry_fee",
+            "amenities",
+            "audio_guide_available",
+            "audio_guide_languages",
+            "visitor_last_updated",
+            "admission",
+            "artists",
+            "curators",
+        ):
+            if field == "artists":
+                row["artist_names"] = ", ".join(merged.get("artists") or [])
+            elif field == "visitor_last_updated":
+                row["last_updated"] = merged.get("visitor_last_updated", "")
+            elif field == "admission":
+                admission = merged.get("admission") or {}
+                row["admission_status"] = admission.get("status", "unknown")
+                row["admission_display"] = admission.get("display", "")
+                row["admission_checked_at"] = admission.get("checkedAt", "")
+                row["reservation_required"] = str(bool(admission.get("reservationRequired"))).lower()
+            else:
+                row[field] = merged.get(field, row.get(field, ""))
+        enriched.append(row)
+    return enriched
 
 
 @app.get("/api/status")
@@ -110,9 +163,18 @@ def api_generate_report() -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@app.get("/api/exhibitions")
+def api_exhibitions(
+    q: str = Query(default="", description="Inquiry text"),
+    city: str = Query(default="", description="City filter"),
+    admission: str = Query(default="all", description="Admission filter"),
+) -> list[dict[str, Any]]:
+    return _load_enriched_exhibitions(query=q, city=city, admission=admission)
+
+
 @app.get("/api/pulse-updates")
 def api_pulse_updates() -> list[dict[str, Any]]:
-    return _read_csv_as_json(database.PULSE_CSV)
+    return _enrich_pulse_rows(_read_csv_as_json(database.PULSE_CSV))
 
 
 @app.get("/api/sources")

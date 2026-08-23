@@ -1,0 +1,212 @@
+{
+  "tested": 4,
+  "passed": 2,
+  "failed": 2,
+  "promoted": [
+    "m-plus",
+    "para-site"
+  ],
+  "timestamp": "2026-07-02T03:53:49.372749+00:00",
+  "results": [
+    {
+      "institution": "M+",
+      "slug": "m-plus",
+      "city": "Hong Kong",
+      "passed": true,
+      "crawler": "html",
+      "website": "https://www.mplus.org.hk",
+      "exhibitions_url": "https://www.mplus.org.hk/en/exhibitions/",
+      "exhibition_count": 1,
+      "attempts": [
+        {
+          "crawler": "html",
+          "url": "https://www.mplus.org.hk/en/exhibitions/",
+          "http_status": 200,
+          "ok": true,
+          "error": null,
+          "text_len": 3250
+        }
+      ],
+      "timestamp": "2026-07-02T03:53:49.372749+00:00"
+    },
+    {
+      "institution": "Tai Kwun Contemporary",
+      "slug": "tai-kwun-contemporary",
+      "city": "Hong Kong",
+      "passed": false,
+      "crawler": null,
+      "website": "https://www.taikwun.hk",
+      "exhibitions_url": "https://www.taikwun.hk/en/whats-on/exhibitions",
+      "error_type": "http_403_forbidden",
+      "http_status": 403,
+      "reason": "HTTP 403",
+      "attempts": [
+        {
+          "crawler": "html",
+          "url": "https://www.taikwun.hk/en/whats-on/exhibitions",
+          "http_status": 404,
+          "ok": false,
+          "error": "Not Found",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://www.taikwun.hk/feed",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://www.taikwun.hk/rss",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://www.taikwun.hk/rss.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://www.taikwun.hk/feed.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://www.taikwun.hk/atom.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "api",
+          "url": "https://www.taikwun.hk/en/whats-on/exhibitions",
+          "http_status": 404,
+          "ok": false,
+          "error": "Not Found",
+          "text_len": 0
+        },
+        {
+          "crawler": "playwright",
+          "url": "https://www.taikwun.hk/en/whats-on/exhibitions",
+          "http_status": 403,
+          "ok": false,
+          "error": "HTTP 403",
+          "text_len": 0
+        }
+      ],
+      "timestamp": "2026-07-02T03:53:49.372749+00:00"
+    },
+    {
+      "institution": "Asia Art Archive",
+      "slug": "asia-art-archive",
+      "city": "Hong Kong",
+      "passed": false,
+      "crawler": null,
+      "website": "https://aaa.org.hk",
+      "exhibitions_url": "https://aaa.org.hk/en/programmes/",
+      "error_type": "http_403_forbidden",
+      "http_status": 403,
+      "reason": "HTTP 403",
+      "attempts": [
+        {
+          "crawler": "html",
+          "url": "https://aaa.org.hk/en/programmes/",
+          "http_status": 403,
+          "ok": false,
+          "error": "Forbidden",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://aaa.org.hk/feed",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://aaa.org.hk/rss",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://aaa.org.hk/rss.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://aaa.org.hk/feed.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "rss",
+          "url": "https://aaa.org.hk/atom.xml",
+          "http_status": null,
+          "ok": false,
+          "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:997)>",
+          "text_len": 0
+        },
+        {
+          "crawler": "api",
+          "url": "https://aaa.org.hk/en/programmes/",
+          "http_status": 403,
+          "ok": false,
+          "error": "Forbidden",
+          "text_len": 0
+        },
+        {
+          "crawler": "playwright",
+          "url": "https://aaa.org.hk/en/programmes/",
+          "http_status": 403,
+          "ok": false,
+          "error": "HTTP 403",
+          "text_len": 0
+        }
+      ],
+      "timestamp": "2026-07-02T03:53:49.372749+00:00"
+    },
+    {
+      "institution": "Para Site",
+      "slug": "para-site",
+      "city": "Hong Kong",
+      "passed": true,
+      "crawler": "html",
+      "website": "https://www.para-site.art",
+      "exhibitions_url": "https://www.para-site.art/programmes/",
+      "exhibition_count": 1,
+      "attempts": [
+        {
+          "crawler": "html",
+          "url": "https://www.para-site.art/programmes/",
+          "http_status": 200,
+          "ok": true,
+          "error": null,
+          "text_len": 795
+        }
+      ],
+      "timestamp": "2026-07-02T03:53:49.372749+00:00"
+    }
+  ]
+}

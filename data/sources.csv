@@ -1,6 +1,17 @@
-city,source_name,source_url,source_type,trust_level,notes
-Berlin,Berlinische Galerie,https://berlinischegalerie.de/en/exhibitions/,museum,high,Official exhibition page
-Berlin,KW Institute,https://www.kw-berlin.de/en/exhibitions/,museum,high,Official exhibition page
-Seoul,MMCA,https://www.mmca.go.kr/eng/exhibitions/exhibitionsList.do,museum,high,Official museum page
-Paris,Palais de Tokyo,https://palaisdetokyo.com/en/exhibitions/,museum,high,Official exhibition page
-New York,MoMA,https://www.moma.org/calendar/exhibitions,museum,high,Official exhibition page
+slug,name,city,country,address,category,importance,website,exhibitions_url,crawler,status
+hamburger-bahnhof,Hamburger Bahnhof – Nationalgalerie der Gegenwart,Berlin,Germany,"Invalidenstraße 50-51, 10557 Berlin",museum,global,https://www.smb.museum/en/museums-institutions/hamburger-bahnhof,https://www.smb.museum/en/museums-institutions/hamburger-bahnhof/exhibitions/current/,html,active
+neue-nationalgalerie,Neue Nationalgalerie,Berlin,Germany,"Potsdamer Straße 50, 10785 Berlin",museum,global,https://www.smb.museum/en/museums-institutions/neue-nationalgalerie,https://www.smb.museum/en/museums-institutions/neue-nationalgalerie/exhibitions/current/,html,active
+berlinische-galerie,Berlinische Galerie,Berlin,Germany,"Alte Jakobstraße 124-128, 10969 Berlin",museum,national,https://berlinischegalerie.de,https://berlinischegalerie.de/en/exhibitions/,html,active
+savvy-contemporary,Savvy Contemporary,Berlin,Germany,"Plantagenstraße 31, 13347 Berlin",non_profit,national,https://savvy-contemporary.com,https://savvy-contemporary.com/en/projects/,html,active
+whitney-museum,Whitney Museum of American Art,New York,United States,"99 Gansevoort Street, New York, NY 10014",museum,global,https://whitney.org,https://whitney.org/exhibitions,html,active
+artists-space,Artists Space,New York,United States,"11 Cortlandt Alley, New York, NY 10013",non_profit,national,https://artistsspace.org,https://artistsspace.org/exhibitions,html,active
+white-columns,White Columns,New York,United States,"91 Horatio Street, New York, NY 10014",non_profit,national,https://www.whitecolumns.org,https://www.whitecolumns.org/exhibitions,html,active
+swiss-institute,Swiss Institute,New York,United States,"38 St. Marks Place, New York, NY 10003",non_profit,national,https://swissinstitute.net,https://swissinstitute.net/exhibitions,html,active
+whitechapel-gallery,Whitechapel Gallery,London,United Kingdom,"77-82 Whitechapel High Street, London E1 7QX",museum,global,https://www.whitechapelgallery.org,https://www.whitechapelgallery.org/exhibitions/,html,active
+photographers-gallery,The Photographers' Gallery,London,United Kingdom,"16-18 Ramillies Street, London W1F 7LW",museum,national,https://thephotographersgallery.org.uk,https://thephotographersgallery.org.uk/whats-on/,html,active
+serpentine-galleries,Serpentine Galleries,London,United Kingdom,"Kensington Gardens, London W2 3XA",kunsthalle,global,https://www.serpentinegalleries.org,https://www.serpentinegalleries.org/whats-on/,html,active
+ica-london,Institute of Contemporary Arts (ICA London),London,United Kingdom,"The Mall, London SW1Y 5AH",kunsthalle,global,https://www.ica.art,https://www.ica.art/whats-on/,html,active
+la-biennale-venezia,La Biennale di Venezia,Venice,Italy,"Ca' Giustinian, San Marco 1364/A, 30124 Venice",biennale,global,https://www.labiennale.org,https://www.labiennale.org/en/art,html,active
+peggy-guggenheim,Peggy Guggenheim Collection,Venice,Italy,"Dorsoduro 701, 30123 Venice",museum,global,https://www.guggenheim-venice.it,https://www.guggenheim-venice.it/en/art/exhibitions,html,active
+m-plus,M+,Hong Kong,Hong Kong,"38 Museum Drive, West Kowloon Cultural District, Hong Kong",museum,global,https://www.mplus.org.hk,https://www.mplus.org.hk/en/exhibitions/,html,active
+para-site,Para Site,Hong Kong,Hong Kong,"22/F, Wing Wah Industrial Building, 677 King's Road, Quarry Bay, Hong Kong",non_profit,global,https://www.para-site.art,https://www.para-site.art/programmes/,html,active

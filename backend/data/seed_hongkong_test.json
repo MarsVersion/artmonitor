@@ -1,0 +1,54 @@
+[
+  {
+    "slug": "m-plus",
+    "name": "M+",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "address": "38 Museum Drive, West Kowloon Cultural District, Hong Kong",
+    "category": "museum",
+    "importance": "global",
+    "website": "https://www.mplus.org.hk",
+    "exhibitions_url": "https://www.mplus.org.hk/en/exhibitions/",
+    "crawler": "html",
+    "status": "test"
+  },
+  {
+    "slug": "tai-kwun-contemporary",
+    "name": "Tai Kwun Contemporary",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "address": "10 Hollywood Road, Central, Hong Kong",
+    "category": "kunsthalle",
+    "importance": "global",
+    "website": "https://www.taikwun.hk",
+    "exhibitions_url": "https://www.taikwun.hk/en/whats-on/exhibitions",
+    "crawler": "html",
+    "status": "test"
+  },
+  {
+    "slug": "asia-art-archive",
+    "name": "Asia Art Archive",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "address": "11/F Hollywood Centre, 233 Hollywood Road, Sheung Wan, Hong Kong",
+    "category": "non_profit",
+    "importance": "global",
+    "website": "https://aaa.org.hk",
+    "exhibitions_url": "https://aaa.org.hk/en/programmes/",
+    "crawler": "html",
+    "status": "test"
+  },
+  {
+    "slug": "para-site",
+    "name": "Para Site",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "address": "22/F, Wing Wah Industrial Building, 677 King's Road, Quarry Bay, Hong Kong",
+    "category": "non_profit",
+    "importance": "global",
+    "website": "https://www.para-site.art",
+    "exhibitions_url": "https://www.para-site.art/programmes/",
+    "crawler": "html",
+    "status": "test"
+  }
+]

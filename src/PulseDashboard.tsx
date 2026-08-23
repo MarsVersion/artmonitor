@@ -102,9 +102,14 @@ export default function PulseDashboard() {
       const rv = normalizeReview(r.human_review_status || '')
       if (reviewFilter !== 'all' && rv !== reviewFilter) return false
       if (sourceType !== 'all') {
-        const url = (r.source_url || '').trim()
-        const match = sources.find((s) => (s.source_url || '').trim() === url)
-        if (!match || (match.source_type || '').trim() !== sourceType) return false
+        const url = (r.source_url || r.exhibitions_url || '').trim()
+        const match = sources.find(
+          (s) =>
+            (s.exhibitions_url || s.source_url || '').trim() === url ||
+            (s.name || s.source_name || '').trim() === (r.institution || r.name || '').trim(),
+        )
+        if (!match || (match.category || match.source_type || '').trim() !== sourceType)
+          return false
       }
       return true
     })
@@ -138,7 +143,7 @@ export default function PulseDashboard() {
   }
 
   async function saveReview(row: PulseRow, value: string) {
-    const id = Number.parseInt(row.exhibition_id || '', 10)
+    const id = (row.exhibition_id || '').trim()
     setBusy(`review-${id}`)
     setError(null)
     try {
@@ -146,9 +151,9 @@ export default function PulseDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          exhibition_id: Number.isFinite(id) ? id : undefined,
+          exhibition_id: id || undefined,
           source_url: row.source_url,
-          exhibition_title: row.exhibition_title,
+          exhibition_title: row.exhibition_title || row.title,
           human_review_status: value,
         }),
       })
@@ -386,21 +391,21 @@ export default function PulseDashboard() {
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {sources.map((s) => (
               <div
-                key={`${s.source_url}-${s.source_name}`}
+                key={`${s.slug || s.exhibitions_url || s.source_url}-${s.name || s.source_name}`}
                 className="rounded-xl border border-stone-200 bg-white p-4 text-sm shadow-sm"
               >
                 <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
                   {s.city || '—'}
                 </p>
-                <p className="mt-1 font-medium text-stone-900">{s.source_name || '—'}</p>
+                <p className="mt-1 font-medium text-stone-900">{s.name || s.source_name || '—'}</p>
                 <dl className="mt-3 space-y-1 text-stone-600">
                   <div className="flex justify-between gap-2">
                     <dt className="text-stone-500">Type</dt>
-                    <dd>{s.source_type || '—'}</dd>
+                    <dd>{s.category || s.source_type || '—'}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
                     <dt className="text-stone-500">Access</dt>
-                    <dd className="text-right">{s.access_method || '—'}</dd>
+                    <dd className="text-right">{s.crawler || s.access_method || '—'}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
                     <dt className="text-stone-500">Status</dt>

@@ -45,17 +45,17 @@ def _read_csv_as_json(path: Path) -> list[dict[str, Any]]:
 @app.get("/api/status")
 def api_status() -> dict[str, Any]:
     conn = database.connect()
-    sources_count = int(conn.execute("SELECT COUNT(*) FROM sources").fetchone()[0])
+    sources_count = int(conn.execute("SELECT COUNT(*) FROM venues").fetchone()[0])
     exhibitions_count = int(conn.execute("SELECT COUNT(*) FROM exhibitions").fetchone()[0])
     pulse_count = int(conn.execute("SELECT COUNT(*) FROM pulse_scores").fetchone()[0])
     last = conn.execute(
-        "SELECT MAX(last_checked) FROM sources WHERE last_checked IS NOT NULL AND TRIM(last_checked) != ''",
+        "SELECT MAX(last_checked) FROM venues WHERE last_checked IS NOT NULL AND TRIM(last_checked) != ''",
     ).fetchone()[0]
     blocked = int(
         conn.execute(
             """
-            SELECT COUNT(*) FROM sources
-            WHERE lower(trim(status)) IN ('blocked', 'inactive')
+            SELECT COUNT(*) FROM venues
+            WHERE lower(trim(status)) IN ('blocked', 'inactive', 'removed')
             """,
         ).fetchone()[0],
     )
@@ -64,6 +64,7 @@ def api_status() -> dict[str, Any]:
             """
             SELECT COUNT(*) FROM exhibitions
             WHERE COALESCE(trim(error_detail), '') != ''
+               OR lower(trim(fetch_status)) = 'error'
             """,
         ).fetchone()[0],
     )
@@ -120,7 +121,7 @@ def api_sources() -> list[dict[str, Any]]:
 
 
 class ReviewBody(BaseModel):
-    exhibition_id: int | None = Field(default=None)
+    exhibition_id: str | None = Field(default=None)
     source_url: str | None = Field(default=None)
     exhibition_title: str | None = Field(default=None)
     human_review_status: str

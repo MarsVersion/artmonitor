@@ -1,4 +1,4 @@
-"""SQLite storage: source registry sync, exhibitions, visitor info, signals, pulse scores."""
+"""SQLite storage: venues, flat exhibition records, crawl logs."""
 
 from __future__ import annotations
 
@@ -9,12 +9,16 @@ from typing import Any
 
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = BACKEND_ROOT / "data"
+ROOT_DATA_DIR = BACKEND_ROOT.parent / "data"
 SOURCES_CSV = DATA_DIR / "sources.csv"
 PULSE_CSV = DATA_DIR / "pulse_updates.csv"
 EXHIBITIONS_CSV = DATA_DIR / "exhibitions.csv"
+FLAT_EXHIBITIONS_CSV = ROOT_DATA_DIR / "exhibitions.csv"
 VISITOR_CSV = DATA_DIR / "visitor_info.csv"
 SIGNALS_CSV = DATA_DIR / "signals.csv"
 DB_PATH = DATA_DIR / "pulse.sqlite"
+
+FAILURE_THRESHOLD = 3
 
 
 def connect() -> sqlite3.Connection:
@@ -26,70 +30,74 @@ def connect() -> sqlite3.Connection:
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
-    """Create v2 schema. Drops legacy v1 tables if present."""
     conn.executescript(
         """
-        DROP TABLE IF EXISTS pulse_updates;
-        DROP TABLE IF EXISTS runs;
-
-        CREATE TABLE IF NOT EXISTS sources (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS venues (
+            slug TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
             city TEXT NOT NULL,
-            source_name TEXT NOT NULL,
-            source_url TEXT NOT NULL UNIQUE,
-            source_type TEXT,
-            trust_level TEXT,
-            access_method TEXT,
-            status TEXT,
+            country TEXT NOT NULL,
+            address TEXT,
+            category TEXT NOT NULL,
+            importance TEXT NOT NULL,
+            website TEXT NOT NULL,
+            exhibitions_url TEXT NOT NULL,
+            crawler TEXT NOT NULL DEFAULT 'html',
+            status TEXT NOT NULL DEFAULT 'active',
             last_checked TEXT,
-            notes TEXT
+            consecutive_failures INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS exhibitions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            source_id INTEGER NOT NULL,
+            id TEXT PRIMARY KEY,
+            venue_slug TEXT NOT NULL,
+            name TEXT,
             city TEXT,
-            institution TEXT,
-            exhibition_title TEXT,
-            artist_names TEXT,
+            country TEXT,
+            address TEXT,
+            category TEXT,
+            importance TEXT,
+            website TEXT,
+            exhibitions_url TEXT,
+            title TEXT,
             start_date TEXT,
             end_date TEXT,
+            artists TEXT,
+            curators TEXT,
+            status TEXT,
+            image_url TEXT,
             source_url TEXT,
-            raw_text TEXT,
-            public_summary TEXT,
-            last_updated TEXT,
+            crawler TEXT,
+            scraped_at TEXT,
+            updated_at TEXT,
             fetch_status TEXT,
             error_detail TEXT,
-            FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE CASCADE
+            FOREIGN KEY (venue_slug) REFERENCES venues(slug) ON DELETE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS visitor_info (
+        CREATE TABLE IF NOT EXISTS crawl_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            institution TEXT,
+            venue_slug TEXT,
+            institution_name TEXT,
             city TEXT,
-            entry_fee TEXT,
-            audio_guide_available TEXT,
-            audio_guide_languages TEXT,
-            amenities TEXT,
-            source_url TEXT,
-            last_updated TEXT
+            event_type TEXT NOT NULL,
+            http_status INTEGER,
+            message TEXT,
+            logged_at TEXT NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS signals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            institution TEXT,
-            city TEXT,
-            google_rating TEXT,
-            hashtag_count TEXT,
-            mention_count TEXT,
-            sentiment_score TEXT,
-            source_url TEXT,
-            last_updated TEXT
+        CREATE TABLE IF NOT EXISTS removed_institutions (
+            venue_slug TEXT PRIMARY KEY,
+            institution_name TEXT NOT NULL,
+            city TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            http_status INTEGER,
+            removed_at TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS pulse_scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            exhibition_id INTEGER NOT NULL,
+            exhibition_id TEXT NOT NULL,
             score REAL NOT NULL,
             pulse_label TEXT NOT NULL,
             reason TEXT,
@@ -98,198 +106,131 @@ def init_schema(conn: sqlite3.Connection) -> None:
             FOREIGN KEY (exhibition_id) REFERENCES exhibitions(id) ON DELETE CASCADE
         );
 
-        CREATE INDEX IF NOT EXISTS idx_exhibitions_source ON exhibitions(source_id);
-        CREATE INDEX IF NOT EXISTS idx_pulse_scores_exhibition ON pulse_scores(exhibition_id);
+        CREATE INDEX IF NOT EXISTS idx_exhibitions_venue ON exhibitions(venue_slug);
+        CREATE INDEX IF NOT EXISTS idx_exhibitions_status ON exhibitions(status);
+        CREATE INDEX IF NOT EXISTS idx_crawl_logs_venue ON crawl_logs(venue_slug);
         """
     )
-    _migrate_schema(conn)
     conn.commit()
-
-
-def _migrate_schema(conn: sqlite3.Connection) -> None:
-    """Add columns introduced after first deploy (safe no-op if present)."""
-    cur = conn.execute("PRAGMA table_info(exhibitions)")
-    cols = {r[1] for r in cur.fetchall()}
-    if cols and "public_summary" not in cols:
-        conn.execute("ALTER TABLE exhibitions ADD COLUMN public_summary TEXT")
 
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def upsert_source(conn: sqlite3.Connection, row: dict[str, Any]) -> int:
-    """Insert or update a source row from the registry CSV. Returns sources.id."""
-    url = str(row.get("source_url", "")).strip()
+def upsert_venue(conn: sqlite3.Connection, venue: dict[str, Any]) -> None:
     conn.execute(
         """
-        INSERT INTO sources (
-            city, source_name, source_url, source_type, trust_level,
-            access_method, status, last_checked, notes
-        ) VALUES (?,?,?,?,?,?,?,?,?)
-        ON CONFLICT(source_url) DO UPDATE SET
+        INSERT INTO venues (
+            slug, name, city, country, address, category, importance,
+            website, exhibitions_url, crawler, status
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(slug) DO UPDATE SET
+            name = excluded.name,
             city = excluded.city,
-            source_name = excluded.source_name,
-            source_type = excluded.source_type,
-            trust_level = excluded.trust_level,
-            access_method = excluded.access_method,
-            status = excluded.status,
-            notes = excluded.notes
+            country = excluded.country,
+            address = excluded.address,
+            category = excluded.category,
+            importance = excluded.importance,
+            website = excluded.website,
+            exhibitions_url = excluded.exhibitions_url,
+            crawler = excluded.crawler,
+            status = CASE
+                WHEN venues.status = 'removed' THEN venues.status
+                ELSE excluded.status
+            END
         """,
         (
-            str(row.get("city", "")).strip(),
-            str(row.get("source_name", "")).strip(),
-            url,
-            str(row.get("source_type", "")).strip(),
-            str(row.get("trust_level", "")).strip(),
-            str(row.get("access_method", "web")).strip().lower(),
-            str(row.get("status", "active")).strip().lower(),
-            _norm_empty_ts(row.get("last_checked")),
-            str(row.get("notes", "") or ""),
+            venue["slug"],
+            venue["name"],
+            venue["city"],
+            venue["country"],
+            venue.get("address", ""),
+            venue["category"],
+            venue["importance"],
+            venue["website"],
+            venue["exhibitions_url"],
+            venue["crawler"],
+            venue.get("status", "active"),
         ),
     )
-    cur = conn.execute("SELECT id FROM sources WHERE source_url = ?", (url,))
-    r = cur.fetchone()
-    if not r:
-        raise RuntimeError(f"upsert_source failed for {url!r}")
-    return int(r[0])
 
 
-def _norm_empty_ts(v: Any) -> str | None:
-    if v is None or (isinstance(v, float) and str(v) == "nan"):
-        return None
-    s = str(v).strip()
-    return s or None
-
-
-def get_source_row(conn: sqlite3.Connection, source_id: int) -> sqlite3.Row | None:
-    cur = conn.execute("SELECT * FROM sources WHERE id = ?", (source_id,))
+def get_venue(conn: sqlite3.Connection, slug: str) -> sqlite3.Row | None:
+    cur = conn.execute("SELECT * FROM venues WHERE slug = ?", (slug,))
     return cur.fetchone()
 
 
-def update_source_last_checked(conn: sqlite3.Connection, source_id: int, ts: str) -> None:
+def update_venue_exhibitions_url(conn: sqlite3.Connection, slug: str, url: str) -> None:
     conn.execute(
-        "UPDATE sources SET last_checked = ? WHERE id = ?",
-        (ts, source_id),
+        "UPDATE venues SET exhibitions_url = ? WHERE slug = ?",
+        (url, slug),
     )
 
 
-def delete_children_for_source(conn: sqlite3.Connection, source_id: int) -> None:
-    conn.execute("DELETE FROM exhibitions WHERE source_id = ?", (source_id,))
+def update_venue_last_checked(conn: sqlite3.Connection, slug: str, ts: str) -> None:
+    conn.execute(
+        "UPDATE venues SET last_checked = ? WHERE slug = ?",
+        (ts, slug),
+    )
 
 
-def delete_visitor_for_url(conn: sqlite3.Connection, source_url: str) -> None:
-    conn.execute("DELETE FROM visitor_info WHERE source_url = ?", (source_url,))
+def set_venue_status(conn: sqlite3.Connection, slug: str, status: str) -> None:
+    conn.execute("UPDATE venues SET status = ? WHERE slug = ?", (status, slug))
 
 
-def delete_signals_for_url(conn: sqlite3.Connection, source_url: str) -> None:
-    conn.execute("DELETE FROM signals WHERE source_url = ?", (source_url,))
+def delete_exhibitions_for_venue(conn: sqlite3.Connection, venue_slug: str) -> None:
+    conn.execute("DELETE FROM exhibitions WHERE venue_slug = ?", (venue_slug,))
 
 
-def insert_exhibition(
-    conn: sqlite3.Connection,
-    *,
-    source_id: int,
-    city: str,
-    institution: str,
-    exhibition_title: str,
-    artist_names: str,
-    start_date: str,
-    end_date: str,
-    source_url: str,
-    raw_text: str,
-    public_summary: str,
-    last_updated: str,
-    fetch_status: str,
-    error_detail: str,
-) -> int:
-    cur = conn.execute(
+def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
+    conn.execute(
         """
         INSERT INTO exhibitions (
-            source_id, city, institution, exhibition_title, artist_names,
-            start_date, end_date, source_url, raw_text, public_summary,
-            last_updated, fetch_status, error_detail
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            id, venue_slug, name, city, country, address, category, importance,
+            website, exhibitions_url, title, start_date, end_date, artists, curators,
+            status, image_url, source_url, crawler, scraped_at, updated_at,
+            fetch_status, error_detail
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(id) DO UPDATE SET
+            title = excluded.title,
+            start_date = excluded.start_date,
+            end_date = excluded.end_date,
+            artists = excluded.artists,
+            curators = excluded.curators,
+            status = excluded.status,
+            image_url = excluded.image_url,
+            source_url = excluded.source_url,
+            exhibitions_url = excluded.exhibitions_url,
+            scraped_at = excluded.scraped_at,
+            updated_at = excluded.updated_at,
+            fetch_status = excluded.fetch_status,
+            error_detail = excluded.error_detail
         """,
         (
-            source_id,
-            city,
-            institution,
-            exhibition_title,
-            artist_names,
-            start_date,
-            end_date,
-            source_url,
-            raw_text,
-            public_summary,
-            last_updated,
-            fetch_status,
-            error_detail,
-        ),
-    )
-    return int(cur.lastrowid)
-
-
-def insert_visitor_info(
-    conn: sqlite3.Connection,
-    *,
-    institution: str,
-    city: str,
-    entry_fee: str,
-    audio_guide_available: str,
-    audio_guide_languages: str,
-    amenities: str,
-    source_url: str,
-    last_updated: str,
-) -> None:
-    conn.execute(
-        """
-        INSERT INTO visitor_info (
-            institution, city, entry_fee, audio_guide_available,
-            audio_guide_languages, amenities, source_url, last_updated
-        ) VALUES (?,?,?,?,?,?,?,?)
-        """,
-        (
-            institution,
-            city,
-            entry_fee,
-            audio_guide_available,
-            audio_guide_languages,
-            amenities,
-            source_url,
-            last_updated,
-        ),
-    )
-
-
-def insert_signals(
-    conn: sqlite3.Connection,
-    *,
-    institution: str,
-    city: str,
-    google_rating: str | None,
-    hashtag_count: str | None,
-    mention_count: str | None,
-    sentiment_score: str | None,
-    source_url: str,
-    last_updated: str,
-) -> None:
-    conn.execute(
-        """
-        INSERT INTO signals (
-            institution, city, google_rating, hashtag_count, mention_count,
-            sentiment_score, source_url, last_updated
-        ) VALUES (?,?,?,?,?,?,?,?)
-        """,
-        (
-            institution,
-            city,
-            google_rating,
-            hashtag_count,
-            mention_count,
-            sentiment_score,
-            source_url,
-            last_updated,
+            record["id"],
+            record["venue_slug"],
+            record["name"],
+            record["city"],
+            record["country"],
+            record.get("address", ""),
+            record["category"],
+            record["importance"],
+            record["website"],
+            record["exhibitions_url"],
+            record["title"],
+            record.get("start_date", ""),
+            record.get("end_date", ""),
+            record.get("artists", "[]"),
+            record.get("curators", "[]"),
+            record.get("status", ""),
+            record.get("image_url", ""),
+            record["source_url"],
+            record["crawler"],
+            record["scraped_at"],
+            record["updated_at"],
+            record.get("fetch_status", "ok"),
+            record.get("error_detail", ""),
         ),
     )
 
@@ -297,13 +238,17 @@ def insert_signals(
 def insert_pulse_score(
     conn: sqlite3.Connection,
     *,
-    exhibition_id: int,
+    exhibition_id: str,
     score: float,
     pulse_label: str,
     reason: str,
     human_review_status: str,
     created_at: str,
 ) -> None:
+    conn.execute(
+        "DELETE FROM pulse_scores WHERE exhibition_id = ?",
+        (exhibition_id,),
+    )
     conn.execute(
         """
         INSERT INTO pulse_scores (
@@ -318,23 +263,22 @@ def update_pulse_review_status(
     conn: sqlite3.Connection,
     *,
     human_review_status: str,
-    exhibition_id: int | None = None,
+    exhibition_id: str | None = None,
     source_url: str | None = None,
     exhibition_title: str | None = None,
 ) -> int:
-    """Update human_review_status on pulse_scores. Returns rows changed."""
-    if exhibition_id is not None:
+    if exhibition_id:
         cur = conn.execute(
             "UPDATE pulse_scores SET human_review_status = ? WHERE exhibition_id = ?",
             (human_review_status, exhibition_id),
         )
         return int(cur.rowcount or 0)
-    if source_url and exhibition_title is not None and str(exhibition_title).strip() != "":
+    if source_url and exhibition_title:
         cur = conn.execute(
             """
             UPDATE pulse_scores SET human_review_status = ?
             WHERE exhibition_id IN (
-                SELECT id FROM exhibitions WHERE source_url = ? AND exhibition_title = ?
+                SELECT id FROM exhibitions WHERE source_url = ? AND title = ?
             )
             """,
             (human_review_status, source_url, exhibition_title),

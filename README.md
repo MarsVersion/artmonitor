@@ -1,6 +1,6 @@
-# ZAKPUM Pulse Monitor
+# Yuranja Art Monitor
 
-Local-first editorial stack: a **Vite + React** dashboard, a **Python** crawl pipeline with **SQLite** + CSV exports, and an optional **HTML** report.
+Local-first editorial stack: a **Vite + React** dashboard, a **Python** crawl pipeline with **SQLite** + CSV exports, and an optional **HTML** report. The dashboard supports inquiries across city, venue, exhibition, artist, curator, admission and visitor amenities.
 
 ## Prerequisites
 

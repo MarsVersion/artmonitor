@@ -42,6 +42,53 @@ def _read_csv_as_json(path: Path) -> list[dict[str, Any]]:
         return [dict(r) for r in csv.DictReader(f)]
 
 
+def _normalise(value: Any) -> str:
+    return str(value or "").strip().casefold()
+
+
+def _visitor_lookup() -> tuple[dict[tuple[str, str], dict[str, Any]], dict[str, dict[str, Any]]]:
+    """Index visitor facts by venue/city and source URL.
+
+    Visitor information is intentionally stored separately from crawl records.  The
+    dashboard, however, needs a denormalised visitor-facing result.
+    """
+    by_venue: dict[tuple[str, str], dict[str, Any]] = {}
+    by_url: dict[str, dict[str, Any]] = {}
+    for row in _read_csv_as_json(database.VISITOR_CSV):
+        venue = _normalise(row.get("institution"))
+        city = _normalise(row.get("city"))
+        url = _normalise(row.get("source_url"))
+        if venue:
+            by_venue[(venue, city)] = row
+        if url:
+            by_url[url] = row
+    return by_venue, by_url
+
+
+def _enrich_with_visitor_info(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_venue, by_url = _visitor_lookup()
+    visitor_fields = (
+        "entry_fee",
+        "audio_guide_available",
+        "audio_guide_languages",
+        "amenities",
+        "last_updated",
+    )
+    enriched: list[dict[str, Any]] = []
+    for source_row in rows:
+        row = dict(source_row)
+        url = _normalise(row.get("source_url") or row.get("exhibitions_url"))
+        venue = _normalise(row.get("institution") or row.get("name"))
+        city = _normalise(row.get("city"))
+        visitor = by_url.get(url) or by_venue.get((venue, city)) or by_venue.get((venue, ""))
+        if visitor:
+            for field in visitor_fields:
+                if not row.get(field):
+                    row[field] = visitor.get(field, "")
+        enriched.append(row)
+    return enriched
+
+
 @app.get("/api/status")
 def api_status() -> dict[str, Any]:
     conn = database.connect()
@@ -112,7 +159,7 @@ def api_generate_report() -> dict[str, Any]:
 
 @app.get("/api/pulse-updates")
 def api_pulse_updates() -> list[dict[str, Any]]:
-    return _read_csv_as_json(database.PULSE_CSV)
+    return _enrich_with_visitor_info(_read_csv_as_json(database.PULSE_CSV))
 
 
 @app.get("/api/sources")

@@ -50,13 +50,21 @@ def _load_enriched_exhibitions(
     admission: str = "all",
 ) -> list[dict[str, Any]]:
     conn = database.connect()
+    database.init_schema(conn)
     visitor_index = exhibition_enrich.load_visitor_index()
-    rows = exhibition_enrich.enrich_rows(
-        exhibition_enrich.load_exhibition_rows(conn),
-        visitor_index,
+    cur = conn.execute(
+        """
+        SELECT *
+        FROM exhibitions
+        WHERE COALESCE(is_duplicate, 0) = 0
+          AND COALESCE(trim(title), '') NOT IN ('', '(unavailable)')
+        ORDER BY city, name, start_date, title
+        """
     )
+    rows = [dict(row) for row in cur.fetchall()]
+    enriched = exhibition_enrich.enrich_rows(rows, visitor_index)
     return exhibition_enrich.filter_exhibitions(
-        rows,
+        enriched,
         query=query,
         city=city,
         admission=admission,
@@ -209,6 +217,7 @@ def api_review(body: ReviewBody) -> dict[str, Any]:
         )
 
     conn = database.connect()
+    database.init_schema(conn)
     n = database.update_pulse_review_status(
         conn,
         human_review_status=status,
@@ -216,11 +225,34 @@ def api_review(body: ReviewBody) -> dict[str, Any]:
         source_url=(body.source_url or "").strip() or None,
         exhibition_title=(body.exhibition_title or "").strip() or None,
     )
-    if n == 0:
-        raise HTTPException(status_code=404, detail="No matching pulse score row was updated.")
+    editorial_updated = 0
+    if body.exhibition_id:
+        editorial_updated = database.update_exhibition_editorial_status(
+            conn,
+            exhibition_id=body.exhibition_id,
+            editorial_status=status,
+        )
+    elif (body.source_url or "").strip() and (body.exhibition_title or "").strip():
+        cur = conn.execute(
+            """
+            UPDATE exhibitions SET editorial_status = ?
+            WHERE source_url = ? AND title = ?
+            """,
+            (status, body.source_url.strip(), body.exhibition_title.strip()),
+        )
+        editorial_updated = int(cur.rowcount or 0)
+
+    if n == 0 and editorial_updated == 0:
+        raise HTTPException(status_code=404, detail="No matching exhibition was updated.")
     conn.commit()
     export.export_all_csvs(conn)
-    return {"success": True, "updated": n, "human_review_status": status}
+    return {
+        "success": True,
+        "updated": max(n, editorial_updated),
+        "pulse_updated": n,
+        "editorial_updated": editorial_updated,
+        "human_review_status": status,
+    }
 
 
 @app.get("/api/health")

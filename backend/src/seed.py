@@ -22,7 +22,8 @@ VENUE_CATEGORIES = frozenset(
     }
 )
 IMPORTANCE_LEVELS = frozenset({"global", "national", "local"})
-CRAWLER_TYPES = frozenset({"html", "playwright", "rss", "api"})
+CRAWLER_TYPES = frozenset({"html", "playwright", "rss", "api", "manual"})
+VENUE_STATUSES = frozenset({"active", "inactive", "manual", "blocked", "removed"})
 
 
 def load_seed(path: Path | None = None) -> list[dict[str, Any]]:
@@ -50,6 +51,9 @@ def _validate_venue(item: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"{slug}: invalid importance {importance!r}")
     if crawler not in CRAWLER_TYPES:
         raise ValueError(f"{slug}: invalid crawler {crawler!r}")
+    status = str(item.get("status", "active")).strip().lower() or "active"
+    if status not in VENUE_STATUSES:
+        raise ValueError(f"{slug}: invalid status {status!r}")
     return {
         "slug": slug,
         "name": str(item.get("name", "")).strip(),
@@ -61,7 +65,7 @@ def _validate_venue(item: dict[str, Any]) -> dict[str, Any]:
         "website": str(item.get("website", "")).strip().rstrip("/"),
         "exhibitions_url": str(item.get("exhibitions_url", "")).strip(),
         "crawler": crawler,
-        "status": str(item.get("status", "active")).strip().lower() or "active",
+        "status": status,
     }
 
 

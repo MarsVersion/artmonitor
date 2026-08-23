@@ -100,7 +100,11 @@ export default function PulseDashboard() {
     void Promise.resolve().then(() => loadAll())
   }, [loadAll])
 
-  const cities = useMemo(() => uniqCities(exhibitions), [exhibitions])
+  const cities = useMemo(() => {
+    const fromExhibitions = uniqCities(exhibitions)
+    const fromSources = uniq(sources.map((s) => (s.city || '').trim()))
+    return uniq([...fromExhibitions, ...fromSources])
+  }, [exhibitions, sources])
 
   const filteredExhibitions = useMemo(
     () =>
@@ -179,6 +183,29 @@ export default function PulseDashboard() {
           exhibition_id: id || undefined,
           source_url: row.source_url,
           exhibition_title: row.exhibition_title || row.title,
+          human_review_status: value,
+        }),
+      })
+      await loadAll()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Review update failed.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function saveExhibitionReview(row: EnrichedExhibition, value: string) {
+    const id = (row.exhibition_id || row.slug || '').trim()
+    setBusy(`review-${id}`)
+    setError(null)
+    try {
+      await fetchJson('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          exhibition_id: id || undefined,
+          source_url: row.source_url || row.exhibitionUrl,
+          exhibition_title: row.title,
           human_review_status: value,
         }),
       })
@@ -314,7 +341,12 @@ export default function PulseDashboard() {
               </p>
             ) : (
               filteredExhibitions.map((row) => (
-                <ExhibitionCard key={`${row.slug}-${row.source_url}`} row={row} />
+                <ExhibitionCard
+                  key={`${row.slug}-${row.source_url}-${row.exhibition_id}`}
+                  row={row}
+                  busy={busy}
+                  onReview={(value) => void saveExhibitionReview(row, value)}
+                />
               ))
             )}
           </div>
@@ -514,10 +546,20 @@ export default function PulseDashboard() {
   )
 }
 
-function ExhibitionCard({ row }: { row: EnrichedExhibition }) {
+function ExhibitionCard({
+  row,
+  busy,
+  onReview,
+}: {
+  row: EnrichedExhibition
+  busy: string | null
+  onReview: (value: string) => void
+}) {
   const admission = admissionDisplay(row)
   const reservationRequired = Boolean(row.admission?.reservationRequired)
-  const checkedAt = row.admission?.checkedAt || row.visitor_last_updated
+  const checkedAt = row.admission?.checkedAt || row.visitor_last_updated || row.dateChecked
+  const editorial = normalizeReview(row.editorial_status || row.human_review_status || '')
+  const sourceHref = row.exhibitionUrl || row.source_url
 
   return (
     <article className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
@@ -529,20 +571,35 @@ function ExhibitionCard({ row }: { row: EnrichedExhibition }) {
           </p>
           <h3 className="mt-1 font-serif text-lg text-stone-900">{row.venue || '—'}</h3>
         </div>
-        {row.format ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {row.format ? (
+            <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700">
+              {row.format}
+            </span>
+          ) : null}
           <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700">
-            {row.format}
+            {editorial}
           </span>
-        ) : null}
+        </div>
       </div>
 
       <p className="mt-3 text-base font-medium text-stone-900">{row.title || '—'}</p>
       <p className="mt-2 text-sm text-stone-600">
         <span className="text-stone-500">Artists:</span> {formatArtists(row)}
       </p>
+      {(row.curators || []).length ? (
+        <p className="mt-1 text-sm text-stone-600">
+          <span className="text-stone-500">Curators:</span> {(row.curators || []).join(', ')}
+        </p>
+      ) : null}
       <p className="mt-1 text-sm text-stone-600">
         <span className="text-stone-500">Dates:</span> {formatDateRange(row)}
       </p>
+      {row.address ? (
+        <p className="mt-1 text-sm text-stone-600">
+          <span className="text-stone-500">Address:</span> {row.address}
+        </p>
+      ) : null}
 
       <dl className="mt-4 grid gap-2 text-sm text-stone-700 sm:grid-cols-2">
         <div>
@@ -589,10 +646,37 @@ function ExhibitionCard({ row }: { row: EnrichedExhibition }) {
         </p>
       ) : null}
 
+      {(row.citations || []).length ? (
+        <div className="mt-4 text-xs text-stone-500">
+          <p className="font-semibold uppercase tracking-wide text-stone-500">Citations</p>
+          <ul className="mt-1 space-y-1">
+            {(row.citations || []).slice(0, 6).map((cite, index) => (
+              <li key={`${cite.field}-${cite.url}-${index}`}>
+                {cite.field || 'field'}
+                {cite.url ? (
+                  <>
+                    {' · '}
+                    <a
+                      href={cite.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="underline decoration-stone-300 underline-offset-2"
+                    >
+                      source
+                    </a>
+                  </>
+                ) : null}
+                {cite.checkedAt ? ` · checked ${cite.checkedAt}` : ''}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-4 text-sm">
-        {row.source_url ? (
+        {sourceHref ? (
           <a
-            href={row.source_url}
+            href={sourceHref}
             target="_blank"
             rel="noreferrer noopener"
             className="text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
@@ -610,6 +694,24 @@ function ExhibitionCard({ row }: { row: EnrichedExhibition }) {
             Venue website
           </a>
         ) : null}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+          Editorial review
+        </label>
+        <select
+          className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+          value={editorial}
+          disabled={busy?.startsWith('review-')}
+          onChange={(e) => onReview(e.target.value)}
+        >
+          {REVIEW_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt === 'needs_edit' ? 'Needs editing' : opt}
+            </option>
+          ))}
+        </select>
       </div>
     </article>
   )

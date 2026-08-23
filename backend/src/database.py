@@ -111,7 +111,40 @@ def init_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_crawl_logs_venue ON crawl_logs(venue_slug);
         """
     )
+    _ensure_exhibition_columns(conn)
     conn.commit()
+
+
+def _ensure_exhibition_columns(conn: sqlite3.Connection) -> None:
+    """Add Yuranja ingestion columns without dropping existing rows."""
+    existing = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(exhibitions)").fetchall()
+    }
+    additions = {
+        "opening_hours": "TEXT",
+        "description": "TEXT",
+        "format": "TEXT",
+        "categories": "TEXT",
+        "media_types": "TEXT",
+        "admission_status": "TEXT",
+        "admission_display": "TEXT",
+        "admission_from_price": "TEXT",
+        "admission_reservation_required": "INTEGER DEFAULT 0",
+        "admission_ticket_url": "TEXT",
+        "admission_checked_at": "TEXT",
+        "exhibition_url": "TEXT",
+        "citations_json": "TEXT",
+        "dedupe_key": "TEXT",
+        "is_duplicate": "INTEGER DEFAULT 0",
+        "archive_status": "TEXT DEFAULT 'active'",
+        "editorial_status": "TEXT DEFAULT 'pending'",
+        "date_checked": "TEXT",
+        "amenities": "TEXT",
+    }
+    for col, decl in additions.items():
+        if col not in existing:
+            conn.execute(f"ALTER TABLE exhibitions ADD COLUMN {col} {decl}")
 
 
 def now_iso() -> str:
@@ -190,8 +223,13 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             id, venue_slug, name, city, country, address, category, importance,
             website, exhibitions_url, title, start_date, end_date, artists, curators,
             status, image_url, source_url, crawler, scraped_at, updated_at,
-            fetch_status, error_detail
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            fetch_status, error_detail,
+            opening_hours, description, format, categories, media_types,
+            admission_status, admission_display, admission_from_price,
+            admission_reservation_required, admission_ticket_url, admission_checked_at,
+            exhibition_url, citations_json, dedupe_key, is_duplicate,
+            archive_status, editorial_status, date_checked, amenities
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET
             title = excluded.title,
             start_date = excluded.start_date,
@@ -205,7 +243,26 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             scraped_at = excluded.scraped_at,
             updated_at = excluded.updated_at,
             fetch_status = excluded.fetch_status,
-            error_detail = excluded.error_detail
+            error_detail = excluded.error_detail,
+            opening_hours = excluded.opening_hours,
+            description = excluded.description,
+            format = excluded.format,
+            categories = excluded.categories,
+            media_types = excluded.media_types,
+            admission_status = excluded.admission_status,
+            admission_display = excluded.admission_display,
+            admission_from_price = excluded.admission_from_price,
+            admission_reservation_required = excluded.admission_reservation_required,
+            admission_ticket_url = excluded.admission_ticket_url,
+            admission_checked_at = excluded.admission_checked_at,
+            exhibition_url = excluded.exhibition_url,
+            citations_json = excluded.citations_json,
+            dedupe_key = excluded.dedupe_key,
+            is_duplicate = excluded.is_duplicate,
+            archive_status = excluded.archive_status,
+            editorial_status = COALESCE(exhibitions.editorial_status, 'pending'),
+            date_checked = excluded.date_checked,
+            amenities = excluded.amenities
         """,
         (
             record["id"],
@@ -231,8 +288,83 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             record["updated_at"],
             record.get("fetch_status", "ok"),
             record.get("error_detail", ""),
+            record.get("opening_hours", ""),
+            record.get("description", ""),
+            record.get("format", ""),
+            record.get("categories", "[]"),
+            record.get("media_types", "[]"),
+            record.get("admission_status", "unknown"),
+            record.get("admission_display", "Check current admission"),
+            record.get("admission_from_price", ""),
+            int(bool(record.get("admission_reservation_required"))),
+            record.get("admission_ticket_url", ""),
+            record.get("admission_checked_at", ""),
+            record.get("exhibition_url", ""),
+            record.get("citations_json", "[]"),
+            record.get("dedupe_key", ""),
+            int(bool(record.get("is_duplicate"))),
+            record.get("archive_status", "active"),
+            record.get("editorial_status", "pending"),
+            record.get("date_checked", ""),
+            record.get("amenities", ""),
         ),
     )
+
+
+def update_exhibition_editorial_status(
+    conn: sqlite3.Connection,
+    *,
+    exhibition_id: str,
+    editorial_status: str,
+) -> int:
+    cur = conn.execute(
+        "UPDATE exhibitions SET editorial_status = ? WHERE id = ?",
+        (editorial_status, exhibition_id),
+    )
+    return int(cur.rowcount or 0)
+
+
+def archive_past_exhibitions(conn: sqlite3.Connection, today_iso: str) -> int:
+    cur = conn.execute(
+        """
+        UPDATE exhibitions
+        SET archive_status = 'archived', status = 'past'
+        WHERE COALESCE(trim(end_date), '') != ''
+          AND date(substr(end_date, 1, 10)) < date(?)
+          AND COALESCE(archive_status, 'active') != 'archived'
+        """,
+        (today_iso[:10],),
+    )
+    return int(cur.rowcount or 0)
+
+
+def mark_duplicates(conn: sqlite3.Connection) -> int:
+    """Keep the earliest scraped row per dedupe_key; mark later ones as duplicates."""
+    rows = conn.execute(
+        """
+        SELECT id, dedupe_key, scraped_at
+        FROM exhibitions
+        WHERE COALESCE(trim(dedupe_key), '') != ''
+        ORDER BY dedupe_key, scraped_at ASC, id ASC
+        """
+    ).fetchall()
+    seen: set[str] = set()
+    duplicate_ids: list[str] = []
+    for row in rows:
+        key = str(row["dedupe_key"] or "")
+        if not key:
+            continue
+        if key in seen:
+            duplicate_ids.append(str(row["id"]))
+        else:
+            seen.add(key)
+    if not duplicate_ids:
+        conn.execute("UPDATE exhibitions SET is_duplicate = 0")
+        return 0
+    conn.execute("UPDATE exhibitions SET is_duplicate = 0")
+    for eid in duplicate_ids:
+        conn.execute("UPDATE exhibitions SET is_duplicate = 1 WHERE id = ?", (eid,))
+    return len(duplicate_ids)
 
 
 def insert_pulse_score(

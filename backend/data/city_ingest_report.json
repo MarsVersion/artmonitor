@@ -1,0 +1,445 @@
+{
+  "generated_at": "2026-08-23T19:31:28.911883+00:00",
+  "cities": [
+    "Berlin",
+    "Hong Kong",
+    "Venice",
+    "New York",
+    "London",
+    "Taipei",
+    "Seoul",
+    "Tokyo",
+    "Mexico City",
+    "Paris",
+    "Brussels",
+    "São Paulo"
+  ],
+  "sources_attempted": 28,
+  "sources_successfully_accessed": 28,
+  "sources_marked_manual_or_inactive": 6,
+  "exhibitions_found": 197,
+  "exhibitions_with_verified_dates": 197,
+  "exhibitions_with_verified_admission": 16,
+  "duplicate_records_removed": 0,
+  "missing_required_fields": {
+    "admission": 181
+  },
+  "by_city": {
+    "Berlin": {
+      "sources_attempted": 4,
+      "sources_ok": 4,
+      "sources_manual_or_inactive": 1,
+      "exhibitions": 32
+    },
+    "Hong Kong": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 20
+    },
+    "Venice": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 4
+    },
+    "New York": {
+      "sources_attempted": 3,
+      "sources_ok": 3,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 16
+    },
+    "London": {
+      "sources_attempted": 3,
+      "sources_ok": 3,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 34
+    },
+    "Taipei": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 1,
+      "exhibitions": 7
+    },
+    "Seoul": {
+      "sources_attempted": 1,
+      "sources_ok": 1,
+      "sources_manual_or_inactive": 2,
+      "exhibitions": 5
+    },
+    "Tokyo": {
+      "sources_attempted": 3,
+      "sources_ok": 3,
+      "sources_manual_or_inactive": 1,
+      "exhibitions": 13
+    },
+    "Mexico City": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 18
+    },
+    "Paris": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 18
+    },
+    "Brussels": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 0,
+      "exhibitions": 13
+    },
+    "São Paulo": {
+      "sources_attempted": 2,
+      "sources_ok": 2,
+      "sources_manual_or_inactive": 1,
+      "exhibitions": 17
+    }
+  },
+  "source_results": [
+    {
+      "slug": "hamburger-bahnhof",
+      "name": "Hamburger Bahnhof – Nationalgalerie der Gegenwart",
+      "city": "Berlin",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.smb.museum/en/museums-institutions/hamburger-bahnhof/exhibitions/current/",
+      "result": "ok",
+      "exhibitions": 9
+    },
+    {
+      "slug": "neue-nationalgalerie",
+      "name": "Neue Nationalgalerie",
+      "city": "Berlin",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.smb.museum/en/museums-institutions/neue-nationalgalerie/exhibitions/current/",
+      "result": "ok",
+      "exhibitions": 7
+    },
+    {
+      "slug": "berlinische-galerie",
+      "name": "Berlinische Galerie",
+      "city": "Berlin",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://berlinischegalerie.de/en/exhibitions/",
+      "result": "ok",
+      "exhibitions": 15
+    },
+    {
+      "slug": "savvy-contemporary",
+      "name": "Savvy Contemporary",
+      "city": "Berlin",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://savvy-contemporary.com/en/projects/",
+      "result": "ok",
+      "exhibitions": 1
+    },
+    {
+      "slug": "kw-berlin",
+      "name": "KW Institute for Contemporary Art",
+      "city": "Berlin",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://www.kw-berlin.de/en/",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    },
+    {
+      "slug": "m-plus",
+      "name": "M+",
+      "city": "Hong Kong",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.mplus.org.hk/en/exhibitions/",
+      "result": "ok",
+      "exhibitions": 15
+    },
+    {
+      "slug": "para-site",
+      "name": "Para Site",
+      "city": "Hong Kong",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.para-site.art/programmes/",
+      "result": "ok",
+      "exhibitions": 5
+    },
+    {
+      "slug": "peggy-guggenheim",
+      "name": "Peggy Guggenheim Collection",
+      "city": "Venice",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.guggenheim-venice.it/en/art/exhibitions",
+      "result": "ok",
+      "exhibitions": 2
+    },
+    {
+      "slug": "la-biennale-venezia",
+      "name": "La Biennale di Venezia",
+      "city": "Venice",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.labiennale.org/en/art",
+      "result": "ok",
+      "exhibitions": 2
+    },
+    {
+      "slug": "whitney-museum",
+      "name": "Whitney Museum of American Art",
+      "city": "New York",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://whitney.org/exhibitions",
+      "result": "ok",
+      "exhibitions": 8
+    },
+    {
+      "slug": "artists-space",
+      "name": "Artists Space",
+      "city": "New York",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://artistsspace.org/exhibitions",
+      "result": "ok",
+      "exhibitions": 7
+    },
+    {
+      "slug": "swiss-institute",
+      "name": "Swiss Institute",
+      "city": "New York",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://swissinstitute.net/exhibitions",
+      "result": "ok",
+      "exhibitions": 1
+    },
+    {
+      "slug": "whitechapel-gallery",
+      "name": "Whitechapel Gallery",
+      "city": "London",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.whitechapelgallery.org/exhibitions/",
+      "result": "ok",
+      "exhibitions": 13
+    },
+    {
+      "slug": "serpentine-galleries",
+      "name": "Serpentine Galleries",
+      "city": "London",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.serpentinegalleries.org/whats-on/",
+      "result": "ok",
+      "exhibitions": 15
+    },
+    {
+      "slug": "photographers-gallery",
+      "name": "The Photographers' Gallery",
+      "city": "London",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://thephotographersgallery.org.uk/whats-on/",
+      "result": "ok",
+      "exhibitions": 6
+    },
+    {
+      "slug": "tfam",
+      "name": "Taipei Fine Arts Museum",
+      "city": "Taipei",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://www.tfam.museum/Exhibition/Exhibition.aspx?ddlLang=en-us",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    },
+    {
+      "slug": "moca-taipei",
+      "name": "Museum of Contemporary Art Taipei",
+      "city": "Taipei",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.mocataipei.org.tw/en/ExhibitionAndEvent",
+      "result": "ok",
+      "exhibitions": 1
+    },
+    {
+      "slug": "art-sonje",
+      "name": "Art Sonje Center",
+      "city": "Seoul",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://artsonje.org/en/exhibition/",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    },
+    {
+      "slug": "leeum",
+      "name": "Leeum Museum of Art",
+      "city": "Seoul",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://www.leeum.org/exhibition",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    },
+    {
+      "slug": "arario-gallery-seoul",
+      "name": "Arario Gallery Seoul",
+      "city": "Seoul",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.arariogallery.com/",
+      "result": "ok",
+      "exhibitions": 5
+    },
+    {
+      "slug": "mori-art-museum",
+      "name": "Mori Art Museum",
+      "city": "Tokyo",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.mori.art.museum/en/exhibitions/",
+      "result": "ok",
+      "exhibitions": 6
+    },
+    {
+      "slug": "mot-tokyo",
+      "name": "Museum of Contemporary Art Tokyo",
+      "city": "Tokyo",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://www.mot-art-museum.jp/en/exhibitions/",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    },
+    {
+      "slug": "nact-tokyo",
+      "name": "The National Art Center, Tokyo",
+      "city": "Tokyo",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.nact.jp/english/exhibition_special/",
+      "result": "ok",
+      "exhibitions": 3
+    },
+    {
+      "slug": "taka-ishii-gallery",
+      "name": "Taka Ishii Gallery",
+      "city": "Tokyo",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.takaishiigallery.com/en/",
+      "result": "ok",
+      "exhibitions": 4
+    },
+    {
+      "slug": "tkg-plus",
+      "name": "TKG+",
+      "city": "Taipei",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.tkgplus.com/exhibitions",
+      "result": "ok",
+      "exhibitions": 6
+    },
+    {
+      "slug": "museo-jumex",
+      "name": "Museo Jumex",
+      "city": "Mexico City",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.fundacionjumex.org/en/exposiciones",
+      "result": "ok",
+      "exhibitions": 14
+    },
+    {
+      "slug": "muac",
+      "name": "MUAC – Museo Universitario Arte Contemporáneo",
+      "city": "Mexico City",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://muac.unam.mx/exposiciones",
+      "result": "ok",
+      "exhibitions": 4
+    },
+    {
+      "slug": "palais-de-tokyo",
+      "name": "Palais de Tokyo",
+      "city": "Paris",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://palaisdetokyo.com/en/exhibitions/",
+      "result": "ok",
+      "exhibitions": 3
+    },
+    {
+      "slug": "centre-pompidou",
+      "name": "Centre Pompidou",
+      "city": "Paris",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.centrepompidou.fr/en/program/exhibitions",
+      "result": "ok",
+      "exhibitions": 15
+    },
+    {
+      "slug": "wiels",
+      "name": "WIELS",
+      "city": "Brussels",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.wiels.org/en/exhibitions",
+      "result": "ok",
+      "exhibitions": 3
+    },
+    {
+      "slug": "bozar",
+      "name": "Bozar – Centre for Fine Arts",
+      "city": "Brussels",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://www.bozar.be/en/calendar?type=exhibition",
+      "result": "ok",
+      "exhibitions": 10
+    },
+    {
+      "slug": "masp",
+      "name": "MASP – Museu de Arte de São Paulo",
+      "city": "São Paulo",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://masp.org.br/en/exhibitions",
+      "result": "ok",
+      "exhibitions": 15
+    },
+    {
+      "slug": "mam-sao-paulo",
+      "name": "MAM – Museu de Arte Moderna de São Paulo",
+      "city": "São Paulo",
+      "status": "active",
+      "crawler": "html",
+      "url": "https://mam.org.br/en/exhibitions/",
+      "result": "ok",
+      "exhibitions": 2
+    },
+    {
+      "slug": "pinacoteca-sp",
+      "name": "Pinacoteca de São Paulo",
+      "city": "São Paulo",
+      "status": "manual",
+      "crawler": "manual",
+      "url": "https://pinacoteca.org.br/en/",
+      "result": "skipped:manual",
+      "exhibitions": 0
+    }
+  ],
+  "errors": [],
+  "archived_past": 0
+}

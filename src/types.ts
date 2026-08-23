@@ -110,6 +110,11 @@ export type EnrichedExhibition = {
   pulse_label?: string
   score?: number | string
   human_review_status?: string
+  editorial_status?: string
+  archive_status?: string
+  citations?: Array<{ field?: string; url?: string; checkedAt?: string; note?: string }>
+  dateChecked?: string
+  exhibitionUrl?: string
   exhibition_id?: string
 }
 

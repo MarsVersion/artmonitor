@@ -14,6 +14,7 @@ from typing import Any
 
 from slugs import exhibition_record_id, slugify
 
+import date_extract
 import html_exhibition_parse
 
 RAW_TEXT_CAP = 2000
@@ -25,10 +26,17 @@ _UNTIL_EU = re.compile(
     re.IGNORECASE,
 )
 
-_RANGE_EN = re.compile(
-    r"(?P<title>[A-ZÀ-Ÿ][^\n–—-]{3,100}?)\s+"
-    r"(?P<m1>[A-Za-z]+)\s+(?P<d1>\d{1,2})\s*[–—-]\s*"
-    r"(?:(?P<m2>[A-Za-z]+)\s+)?(?P<d2>\d{1,2}),?\s*(?P<y>\d{4})",
+_TITLE_BEFORE_RANGE = re.compile(
+    r"(?P<title>[A-ZÀ-Ÿ][^\n]{3,100}?)\s+"
+    r"(?P<range>"
+    r"\d{1,2}\s+[A-Za-zÀ-ÿ]+\s*[–—\-]\s*\d{1,2}\s+[A-Za-zÀ-ÿ]+\s+20\d{2}|"
+    r"[A-Za-zÀ-ÿ]+\s+\d{1,2},?\s*(?:20\d{2})?\s*[–—\-]\s*[A-Za-zÀ-ÿ]+\s+\d{1,2},?\s*20\d{2}|"
+    r"\d{1,2}\.\d{1,2}\.\d{2,4}\s*[–—\-]\s*\d{1,2}\.\d{1,2}\.\d{2,4}|"
+    r"through\s+[A-Za-zÀ-ÿ]+\s+\d{1,2},?\s*20\d{2}|"
+    r"\d{1,2}\s+[A-Za-zÀ-ÿ]+\s+20\d{2}\s+\d{1,2}\s+[A-Za-zÀ-ÿ]+\s+20\d{2}|"
+    r"20\d{2}\.\d{1,2}\.\d{1,2}.*?[–—\-].*?\d{1,2}\.\d{1,2}"
+    r")",
+    re.I,
 )
 
 _MONTHS = {
@@ -217,6 +225,8 @@ def build_flat_records(
                 "curators": json.dumps(c.get("curators") or [], ensure_ascii=False),
                 "status": status,
                 "image_url": c.get("image_url", ""),
+                "exhibition_url": c.get("exhibition_url", "") or listing_url,
+                "date_citation": c.get("date_citation", ""),
                 "fetch_status": "ok",
                 "error_detail": "",
             }
@@ -231,7 +241,7 @@ def _parse_candidates(text: str) -> list[dict[str, Any]]:
         title = _clean(m.group("title"))
         end = _to_iso(m.group("d"), m.group("m"), m.group("y"))
         artists = _guess_artists_from_title(title)
-        if title:
+        if title and not html_exhibition_parse._is_nav_title(title):
             out.append(
                 {
                     "title": title,
@@ -240,29 +250,28 @@ def _parse_candidates(text: str) -> list[dict[str, Any]]:
                     "artists": artists,
                     "curators": [],
                     "image_url": "",
+                    "date_citation": _clean(m.group(0))[:160],
                 }
             )
 
-    for m in _RANGE_EN.finditer(text):
+    for m in _TITLE_BEFORE_RANGE.finditer(text):
         title = _clean(m.group("title"))
-        m1 = _month_num(m.group("m1"))
-        m2 = _month_num(m.group("m2") or m.group("m1"))
-        y = m.group("y")
-        if m1 and m2:
-            start = _to_iso(m.group("d1"), str(m1), y)
-            end = _to_iso(m.group("d2"), str(m2), y)
-            artists = _guess_artists_from_title(title)
-            if title:
-                out.append(
-                    {
-                        "title": title,
-                        "start_date": start,
-                        "end_date": end,
-                        "artists": artists,
-                        "curators": [],
-                        "image_url": "",
-                    }
-                )
+        if html_exhibition_parse._is_nav_title(title):
+            continue
+        hit = date_extract.extract_date_range(m.group("range"))
+        if not (hit["start_date"] or hit["end_date"]):
+            continue
+        out.append(
+            {
+                "title": title,
+                "start_date": hit["start_date"],
+                "end_date": hit["end_date"],
+                "artists": _guess_artists_from_title(title),
+                "curators": [],
+                "image_url": "",
+                "date_citation": hit["date_citation"] or _clean(m.group("range"))[:160],
+            }
+        )
 
     return out
 
@@ -278,9 +287,14 @@ def _merge_candidates(
         key = (c.get("title") or "").strip().lower()
         if not key or key in seen:
             continue
+        if html_exhibition_parse._is_nav_title(key):
+            continue
         seen.add(key)
         merged.append(c)
-    return merged
+    # Prefer dated records first; if any dated exist, drop undated noise
+    dated = [c for c in merged if c.get("start_date") or c.get("end_date")]
+    undated = [c for c in merged if not (c.get("start_date") or c.get("end_date"))]
+    return dated + undated if not dated else dated
 
 
 def _guess_artists_from_title(title: str) -> list[str]:

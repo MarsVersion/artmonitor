@@ -246,19 +246,51 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         city=city,
         exhibitions_url=exhibitions_url,
     )
-    entry_fee = normalize_text(visitor.get("entry_fee") if visitor else row.get("entry_fee"))
-    amenities = normalize_text(visitor.get("amenities") if visitor else row.get("amenities"))
+    entry_fee = normalize_text(
+        row.get("admission_display")
+        or (visitor.get("entry_fee") if visitor else "")
+        or row.get("entry_fee")
+    )
+    amenities = normalize_text(
+        row.get("amenities")
+        or (visitor.get("amenities") if visitor else "")
+    )
     audio_guide = normalize_text(
         visitor.get("audio_guide_available") if visitor else row.get("audio_guide_available")
     )
     audio_langs = normalize_text(
         visitor.get("audio_guide_languages") if visitor else row.get("audio_guide_languages")
     )
-    visitor_checked = normalize_text(visitor.get("last_updated") if visitor else row.get("last_updated"))
-    admission = parse_admission(entry_fee, amenities, visitor_checked)
+    visitor_checked = normalize_text(
+        row.get("admission_checked_at")
+        or row.get("date_checked")
+        or (visitor.get("last_updated") if visitor else "")
+        or row.get("last_updated")
+    )
+    if normalize_text(row.get("admission_status")):
+        admission = {
+            "status": normalize_text(row.get("admission_status")),
+            "display": entry_fee or "Check current admission",
+            "fromPrice": normalize_text(row.get("admission_from_price")),
+            "reservationRequired": bool(row.get("admission_reservation_required")),
+            "ticketUrl": normalize_text(row.get("admission_ticket_url")),
+            "checkedAt": visitor_checked[:10] if visitor_checked else "",
+        }
+    else:
+        admission = parse_admission(entry_fee, amenities, visitor_checked)
 
     public_summary = normalize_text(row.get("public_summary") or row.get("reason") or row.get("description"))
     yuranja_note = normalize_text(row.get("yuranjaNote") or row.get("yuranja_note"))
+    citations_raw = row.get("citations_json") or row.get("citations") or []
+    if isinstance(citations_raw, str) and citations_raw.strip().startswith("["):
+        try:
+            citations = json.loads(citations_raw)
+        except json.JSONDecodeError:
+            citations = []
+    elif isinstance(citations_raw, list):
+        citations = citations_raw
+    else:
+        citations = []
 
     return {
         "slug": slug,
@@ -278,7 +310,7 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         "description": normalize_text(row.get("description")),
         "yuranjaNote": yuranja_note,
         "public_summary": public_summary,
-        "format": fmt,
+        "format": fmt or normalize_text(row.get("format")),
         "categories": _parse_json_list(row.get("categories")),
         "mediaTypes": _parse_json_list(row.get("media_types") or row.get("mediaTypes")),
         "admission": admission,
@@ -288,6 +320,7 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         "audio_guide_languages": audio_langs,
         "source_url": source_url or exhibitions_url,
         "exhibitions_url": exhibitions_url,
+        "exhibitionUrl": normalize_text(row.get("exhibition_url") or source_url or exhibitions_url),
         "status": normalize_text(row.get("status")),
         "category": normalize_text(row.get("category")),
         "importance": normalize_text(row.get("importance")),
@@ -298,7 +331,13 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         "visitor_last_updated": visitor_checked,
         "pulse_label": normalize_text(row.get("pulse_label")),
         "score": row.get("score"),
-        "human_review_status": normalize_text(row.get("human_review_status")),
+        "human_review_status": normalize_text(
+            row.get("editorial_status") or row.get("human_review_status")
+        ),
+        "editorial_status": normalize_text(row.get("editorial_status") or "pending"),
+        "archive_status": normalize_text(row.get("archive_status") or "active"),
+        "citations": citations,
+        "dateChecked": normalize_text(row.get("date_checked") or visitor_checked)[:10],
         "exhibition_id": normalize_text(row.get("exhibition_id") or row.get("id")),
     }
 

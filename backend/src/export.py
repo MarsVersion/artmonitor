@@ -119,7 +119,7 @@ def _export_venues(conn: sqlite3.Connection, path: Path) -> None:
         SELECT slug, name, city, country, address, category, importance,
                website, exhibitions_url, crawler, status
         FROM venues
-        WHERE status = 'active'
+        WHERE lower(COALESCE(status, 'active')) IN ('active', 'manual')
         ORDER BY city, name
         """
     )

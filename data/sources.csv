@@ -1,17 +1,35 @@
 slug,name,city,country,address,category,importance,website,exhibitions_url,crawler,status
 berlinische-galerie,Berlinische Galerie,Berlin,Germany,"Alte Jakobstraße 124-128, 10969 Berlin",museum,national,https://berlinischegalerie.de,https://berlinischegalerie.de/en/exhibitions/,html,active
 hamburger-bahnhof,Hamburger Bahnhof – Nationalgalerie der Gegenwart,Berlin,Germany,"Invalidenstraße 50-51, 10557 Berlin",museum,global,https://www.smb.museum/en/museums-institutions/hamburger-bahnhof,https://www.smb.museum/en/museums-institutions/hamburger-bahnhof/exhibitions/current/,html,active
+kw-berlin,KW Institute for Contemporary Art,Berlin,Germany,"Auguststraße 69, 10117 Berlin",kunsthalle,global,https://www.kw-berlin.de,https://www.kw-berlin.de/en/,manual,manual
 neue-nationalgalerie,Neue Nationalgalerie,Berlin,Germany,"Potsdamer Straße 50, 10785 Berlin",museum,global,https://www.smb.museum/en/museums-institutions/neue-nationalgalerie,https://www.smb.museum/en/museums-institutions/neue-nationalgalerie/exhibitions/current/,html,active
 savvy-contemporary,Savvy Contemporary,Berlin,Germany,"Plantagenstraße 31, 13347 Berlin",non_profit,national,https://savvy-contemporary.com,https://savvy-contemporary.com/en/projects/,html,active
+bozar,Bozar – Centre for Fine Arts,Brussels,Belgium,"Rue Ravenstein 23, 1000 Brussels",kunsthalle,national,https://www.bozar.be,https://www.bozar.be/en/calendar?type=exhibition,html,active
+wiels,WIELS,Brussels,Belgium,"Avenue Van Volxem 354, 1190 Brussels",kunsthalle,global,https://www.wiels.org,https://www.wiels.org/en/exhibitions,html,active
 m-plus,M+,Hong Kong,Hong Kong,"38 Museum Drive, West Kowloon Cultural District, Hong Kong",museum,global,https://www.mplus.org.hk,https://www.mplus.org.hk/en/exhibitions/,html,active
 para-site,Para Site,Hong Kong,Hong Kong,"22/F, Wing Wah Industrial Building, 677 King's Road, Quarry Bay, Hong Kong",non_profit,global,https://www.para-site.art,https://www.para-site.art/programmes/,html,active
-ica-london,Institute of Contemporary Arts (ICA London),London,United Kingdom,"The Mall, London SW1Y 5AH",kunsthalle,global,https://www.ica.art,https://www.ica.art/whats-on/,html,active
 serpentine-galleries,Serpentine Galleries,London,United Kingdom,"Kensington Gardens, London W2 3XA",kunsthalle,global,https://www.serpentinegalleries.org,https://www.serpentinegalleries.org/whats-on/,html,active
 photographers-gallery,The Photographers' Gallery,London,United Kingdom,"16-18 Ramillies Street, London W1F 7LW",museum,national,https://thephotographersgallery.org.uk,https://thephotographersgallery.org.uk/whats-on/,html,active
 whitechapel-gallery,Whitechapel Gallery,London,United Kingdom,"77-82 Whitechapel High Street, London E1 7QX",museum,global,https://www.whitechapelgallery.org,https://www.whitechapelgallery.org/exhibitions/,html,active
+muac,MUAC – Museo Universitario Arte Contemporáneo,Mexico City,Mexico,"Insurgentes Sur 3000, Centro Cultural Universitario, Coyoacán, Mexico City",museum,national,https://muac.unam.mx,https://muac.unam.mx/exposiciones,html,active
+museo-jumex,Museo Jumex,Mexico City,Mexico,"Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",museum,global,https://www.fundacionjumex.org,https://www.fundacionjumex.org/en/exposiciones,html,active
 artists-space,Artists Space,New York,United States,"11 Cortlandt Alley, New York, NY 10013",non_profit,national,https://artistsspace.org,https://artistsspace.org/exhibitions,html,active
 swiss-institute,Swiss Institute,New York,United States,"38 St. Marks Place, New York, NY 10003",non_profit,national,https://swissinstitute.net,https://swissinstitute.net/exhibitions,html,active
-white-columns,White Columns,New York,United States,"91 Horatio Street, New York, NY 10014",non_profit,national,https://www.whitecolumns.org,https://www.whitecolumns.org/exhibitions,html,active
 whitney-museum,Whitney Museum of American Art,New York,United States,"99 Gansevoort Street, New York, NY 10014",museum,global,https://whitney.org,https://whitney.org/exhibitions,html,active
+centre-pompidou,Centre Pompidou,Paris,France,"Place Georges-Pompidou, 75004 Paris",museum,global,https://www.centrepompidou.fr,https://www.centrepompidou.fr/en/program/exhibitions,html,active
+palais-de-tokyo,Palais de Tokyo,Paris,France,"13 Avenue du Président Wilson, 75116 Paris",kunsthalle,global,https://palaisdetokyo.com,https://palaisdetokyo.com/en/exhibitions/,html,active
+arario-gallery-seoul,Arario Gallery Seoul,Seoul,South Korea,"85 Yulgok-ro, Jongno-gu, Seoul",gallery,national,https://www.arariogallery.com,https://www.arariogallery.com/,html,active
+art-sonje,Art Sonje Center,Seoul,South Korea,"87 Yulgok-ro 3-gil, Jongno-gu, Seoul",kunsthalle,national,https://artsonje.org,https://artsonje.org/en/exhibition/,manual,manual
+leeum,Leeum Museum of Art,Seoul,South Korea,"60-16 Itaewon-ro 55-gil, Yongsan-gu, Seoul",museum,global,https://www.leeum.org,https://www.leeum.org/exhibition,manual,manual
+mam-sao-paulo,MAM – Museu de Arte Moderna de São Paulo,São Paulo,Brazil,"Parque Ibirapuera, Gate 3, São Paulo",museum,national,https://mam.org.br,https://mam.org.br/en/exhibitions/,html,active
+masp,MASP – Museu de Arte de São Paulo,São Paulo,Brazil,"Avenida Paulista 1578, Bela Vista, São Paulo",museum,global,https://masp.org.br,https://masp.org.br/en/exhibitions,html,active
+pinacoteca-sp,Pinacoteca de São Paulo,São Paulo,Brazil,"Praça da Luz 2, Luz, São Paulo",museum,national,https://pinacoteca.org.br,https://pinacoteca.org.br/en/,manual,manual
+moca-taipei,Museum of Contemporary Art Taipei,Taipei,Taiwan,"No. 39, Chang'an West Road, Datong District, Taipei",museum,national,https://www.mocataipei.org.tw,https://www.mocataipei.org.tw/en/ExhibitionAndEvent,html,active
+tkg-plus,TKG+,Taipei,Taiwan,"B1, No. 15, Lane 548, Ruiguang Road, Neihu District, Taipei",gallery,national,https://www.tkgplus.com,https://www.tkgplus.com/exhibitions,html,active
+tfam,Taipei Fine Arts Museum,Taipei,Taiwan,"No. 181, Section 3, Zhongshan North Road, Zhongshan District, Taipei",museum,national,https://www.tfam.museum,https://www.tfam.museum/Exhibition/Exhibition.aspx?ddlLang=en-us,manual,manual
+mori-art-museum,Mori Art Museum,Tokyo,Japan,"Roppongi Hills Mori Tower 53F, 6-10-1 Roppongi, Minato-ku, Tokyo",museum,global,https://www.mori.art.museum,https://www.mori.art.museum/en/exhibitions/,html,active
+mot-tokyo,Museum of Contemporary Art Tokyo,Tokyo,Japan,"4-1-1 Miyoshi, Koto-ku, Tokyo",museum,national,https://www.mot-art-museum.jp,https://www.mot-art-museum.jp/en/exhibitions/,manual,manual
+taka-ishii-gallery,Taka Ishii Gallery,Tokyo,Japan,"complex665 3F, 6-5-24 Roppongi, Minato-ku, Tokyo",gallery,national,https://www.takaishiigallery.com,https://www.takaishiigallery.com/en/,html,active
+nact-tokyo,"The National Art Center, Tokyo",Tokyo,Japan,"7-22-2 Roppongi, Minato-ku, Tokyo",museum,national,https://www.nact.jp,https://www.nact.jp/english/exhibition_special/,html,active
 la-biennale-venezia,La Biennale di Venezia,Venice,Italy,"Ca' Giustinian, San Marco 1364/A, 30124 Venice",biennale,global,https://www.labiennale.org,https://www.labiennale.org/en/art,html,active
 peggy-guggenheim,Peggy Guggenheim Collection,Venice,Italy,"Dorsoduro 701, 30123 Venice",museum,global,https://www.guggenheim-venice.it,https://www.guggenheim-venice.it/en/art/exhibitions,html,active

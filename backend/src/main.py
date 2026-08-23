@@ -83,6 +83,9 @@ def cmd_run(*, force: bool) -> dict[str, Any]:
             if status != "active":
                 stats["venues_skipped_inactive"] += 1
                 continue
+            if str(venue.get("crawler", "")).strip().lower() == "manual":
+                stats["venues_skipped_inactive"] += 1
+                continue
 
             stats["venues_active"] += 1
 
@@ -268,7 +271,8 @@ def main() -> None:
     cmd, force = _parse_argv()
     if cmd is None:
         print(
-            "Usage: python backend/src/main.py run [--force] | crawl-reliable | seed-sync | cleanup | test-hongkong | report",
+            "Usage: python backend/src/main.py run [--force] | crawl-reliable | seed-sync | "
+            "cleanup | test-hongkong | ingest-cities [--force] | export-yuranja | report",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -322,15 +326,33 @@ def main() -> None:
             print(f"  [{status}] {r['institution']} — {crawler}")
         if result.get("message"):
             print(result["message"])
+    elif cmd == "ingest-cities":
+        load_dotenv(database.BACKEND_ROOT / ".env")
+        import yuranja_ingest
+
+        result = yuranja_ingest.run_city_ingest(force=force or True)
+        if result.get("message"):
+            print(result["message"])
+        if result.get("errors"):
+            for e in result["errors"]:
+                print(f"  [error] {e}")
+    elif cmd == "export-yuranja":
+        load_dotenv(database.BACKEND_ROOT / ".env")
+        import yuranja_export
+
+        result = yuranja_export.export_yuranja()
+        if result.get("message"):
+            print(result["message"])
     elif cmd == "report":
         if force:
-            print("note: --force applies only to run", file=sys.stderr)
+            print("note: --force applies only to run / ingest-cities", file=sys.stderr)
         result = cmd_report()
         if result.get("message"):
             print(result["message"])
     else:
         print(
-            f"Unknown command: {cmd!r}. Expected: run | crawl-reliable | seed-sync | cleanup | test-hongkong | report",
+            f"Unknown command: {cmd!r}. Expected: run | crawl-reliable | seed-sync | cleanup | "
+            "test-hongkong | ingest-cities | export-yuranja | report",
             file=sys.stderr,
         )
         sys.exit(1)

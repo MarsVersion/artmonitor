@@ -1,5 +1,226 @@
 {
-  "generated_at": "2026-08-23T19:32:26.916210+00:00",
-  "count": 0,
-  "exhibitions": []
+  "generated_at": "2026-08-23T20:03:01.769499+00:00",
+  "count": 5,
+  "exhibitions": [
+    {
+      "slug": "berlinische-galerie-jeewi-lee",
+      "title": "Jeewi Lee",
+      "artists": [],
+      "curators": [],
+      "venue": "Berlinische Galerie",
+      "city": "Berlin",
+      "country": "Germany",
+      "dates": {
+        "start": "2026-09-11",
+        "end": "2027-04-05"
+      },
+      "address": "Alte Jakobstraße 124-128, 10969 Berlin",
+      "openingHours": "",
+      "website": "https://berlinischegalerie.de/en/exhibitions/",
+      "description": "Jeewi Lee is presented at Berlinische Galerie from 2026-09-11 to 2027-04-05.",
+      "yuranjaNote": "",
+      "format": "",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://berlinischegalerie.de/en/exhibitions/",
+          "publisher": "Berlinische Galerie",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "time@2026-09-11–2027-04-05"
+        }
+      ],
+      "dateChecked": "2026-08-23"
+    },
+    {
+      "slug": "richard-prince-tell-me-everything-2026",
+      "title": "Richard Prince: Tell Me Everything 26.SEP.2026 - 07.FEB.2027",
+      "artists": [],
+      "curators": [],
+      "venue": "Museo Jumex",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-09-26",
+        "end": "2027-02-07"
+      },
+      "address": "Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",
+      "openingHours": "",
+      "website": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+      "description": "Richard Prince: Tell Me Everything 26.SEP.2026 - 07.FEB.2027 is presented at Museo Jumex from 2026-09-26 to 2027-02-07.",
+      "yuranjaNote": "",
+      "format": "",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "26.SEP.2026 - 07.FEB.2027"
+        }
+      ],
+      "dateChecked": "2026-08-23"
+    },
+    {
+      "slug": "raul-silva-gateway-2026",
+      "title": "RAÚL SILVA: GATEWAY 16.OCT.2026 - 07.FEB.2027",
+      "artists": [],
+      "curators": [],
+      "venue": "Museo Jumex",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-10-16",
+        "end": "2027-02-07"
+      },
+      "address": "Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",
+      "openingHours": "",
+      "website": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+      "description": "RAÚL SILVA: GATEWAY 16.OCT.2026 - 07.FEB.2027 is presented at Museo Jumex from 2026-10-16 to 2027-02-07.",
+      "yuranjaNote": "",
+      "format": "",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "16.OCT.2026 - 07.FEB.2027"
+        }
+      ],
+      "dateChecked": "2026-08-23"
+    },
+    {
+      "slug": "francois-morellet-100-pour-cent-2026",
+      "title": "François Morellet 100 pour cent",
+      "artists": [],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-04-03",
+        "end": "2026-09-29"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+      "description": "François Morellet 100 pour cent is presented at Centre Pompidou from 2026-04-03 to 2026-09-29.",
+      "yuranjaNote": "",
+      "format": "",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "3 April – 29 September 2026"
+        }
+      ],
+      "dateChecked": "2026-08-23"
+    },
+    {
+      "slug": "louise-bourgeois-extreme-tension-dessins-et-gravures-2026",
+      "title": "Louise Bourgeois. Extrême tension Dessins et gravures",
+      "artists": [],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-10-20",
+        "end": "2027-02-21"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+      "description": "Louise Bourgeois. Extrême tension Dessins et gravures is presented at Centre Pompidou from 2026-10-20 to 2027-02-21.",
+      "yuranjaNote": "",
+      "format": "",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "20 octobre 2026 – 21 février 2027"
+        }
+      ],
+      "dateChecked": "2026-08-23"
+    }
+  ]
 }

@@ -12,7 +12,8 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import database
-import yuranja_model
+import yuranja_candidates as yc
+import yuranja_model as ym
 from slugs import slugify
 
 EXPORT_PATH = database.ROOT_DATA_DIR / "yuranja_exhibitions.json"
@@ -48,9 +49,11 @@ def _row_to_record(row: Any) -> dict[str, Any]:
         "ticketUrl": str(row["admission_ticket_url"] or ""),
         "checkedAt": str(row["admission_checked_at"] or ""),
     }
-    return {
+    ex_url = str(row["exhibition_url"] or row["source_url"] or "").strip()
+    slug = str(row["candidate_slug"] or "").strip() or slugify(f"{row['name']}-{row['title']}")[:80]
+    record = {
         "id": row["id"],
-        "slug": slugify(f"{row['name']}-{row['title']}")[:80],
+        "slug": slug,
         "title": row["title"],
         "artists": _list(row["artists"]),
         "curators": _list(row["curators"]),
@@ -60,7 +63,7 @@ def _row_to_record(row: Any) -> dict[str, Any]:
         "dates": {"start": row["start_date"] or "", "end": row["end_date"] or ""},
         "address": row["address"] or "",
         "openingHours": row["opening_hours"] or "",
-        "website": row["website"] or "",
+        "website": ex_url,
         "description": row["description"] or "",
         "yuranjaNote": "",
         "format": row["format"] or "",
@@ -68,8 +71,21 @@ def _row_to_record(row: Any) -> dict[str, Any]:
         "mediaTypes": _list(row["media_types"]),
         "admission": admission,
         "tags": [],
-        "citations": citations,
-        "exhibitionUrl": row["exhibition_url"] or row["source_url"] or "",
+        "citations": yc.yuranja_citations(
+            {
+                "venue": row["name"],
+                "title": row["title"],
+                "artists": _list(row["artists"]),
+                "description": row["description"],
+                "exhibitionUrl": ex_url,
+                "website": row["website"],
+                "admission": admission,
+                "citations": citations,
+                "dateChecked": row["date_checked"] or "",
+            },
+            checked_at=str(row["date_checked"] or "")[:10] or yc._today_iso(),
+        ),
+        "exhibitionUrl": ex_url,
         "source_url": row["source_url"] or "",
         "dateChecked": row["date_checked"] or "",
         "status": row["status"] or "",
@@ -77,6 +93,9 @@ def _row_to_record(row: Any) -> dict[str, Any]:
         "editorial_status": row["editorial_status"] or "pending",
         "is_duplicate": bool(row["is_duplicate"]),
     }
+    if not record["description"]:
+        record["description"] = yc.build_description(record)
+    return record
 
 
 def export_yuranja(*, path: Path | None = None) -> dict[str, Any]:
@@ -93,11 +112,22 @@ def export_yuranja(*, path: Path | None = None) -> dict[str, Any]:
           AND COALESCE(is_duplicate, 0) = 0
           AND lower(COALESCE(status, '')) IN ('current', 'upcoming')
           AND COALESCE(trim(title), '') NOT IN ('', '(unavailable)')
+          AND COALESCE(trim(start_date), '') != ''
+          AND COALESCE(trim(end_date), '') != ''
+          AND COALESCE(trim(exhibition_url), '') != ''
         ORDER BY city, name, start_date, title
         """
     ).fetchall()
 
-    exhibitions = [yuranja_model.to_export_shape(_row_to_record(row)) for row in rows]
+    exhibitions: list[dict[str, Any]] = []
+    skipped = 0
+    for row in rows:
+        record = _row_to_record(row)
+        if not ym.export_eligible(record):
+            skipped += 1
+            continue
+        exhibitions.append(ym.to_export_shape(record))
+
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "generated_at": database.now_iso(),
@@ -108,5 +138,13 @@ def export_yuranja(*, path: Path | None = None) -> dict[str, Any]:
         json.dump(payload, f, indent=2, ensure_ascii=False)
 
     msg = f"Exported {len(exhibitions)} approved exhibitions to {out}"
+    if skipped:
+        msg += f" ({skipped} approved rows failed export validation)"
     print(msg)
-    return {"success": True, "message": msg, "path": str(out), "count": len(exhibitions)}
+    return {
+        "success": True,
+        "message": msg,
+        "path": str(out),
+        "count": len(exhibitions),
+        "skipped": skipped,
+    }

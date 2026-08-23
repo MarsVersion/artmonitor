@@ -70,6 +70,15 @@ export default function PulseDashboard() {
   const [city, setCity] = useState('all')
   const [admission, setAdmission] = useState<AdmissionFilter>('all')
 
+  const [candidateCity, setCandidateCity] = useState('all')
+  const [candidateInstitution, setCandidateInstitution] = useState('all')
+  const [candidateLifecycle, setCandidateLifecycle] = useState('all')
+  const [candidateMinScore, setCandidateMinScore] = useState('65')
+  const [candidateReview, setCandidateReview] = useState('all')
+  const [candidateAdmission, setCandidateAdmission] = useState<AdmissionFilter>('all')
+  const [candidateMissingOnly, setCandidateMissingOnly] = useState(false)
+  const [candidateCitationComplete, setCandidateCitationComplete] = useState(false)
+
   const [sourceType, setSourceType] = useState('all')
   const [pulseLabel, setPulseLabel] = useState('all')
   const [fetchStatus, setFetchStatus] = useState('all')
@@ -115,6 +124,61 @@ export default function PulseDashboard() {
       }),
     [exhibitions, inquiry, city, admission],
   )
+
+  const candidatePool = useMemo(
+    () => exhibitions.filter((row) => row.isYuranjaCandidate),
+    [exhibitions],
+  )
+
+  const institutions = useMemo(
+    () => uniq(candidatePool.map((row) => (row.venue || '').trim())),
+    [candidatePool],
+  )
+
+  const filteredCandidates = useMemo(() => {
+    const minScore = Number(candidateMinScore) || 0
+    return candidatePool.filter((row) => {
+      if (candidateCity !== 'all' && (row.city || '').trim() !== candidateCity) return false
+      if (
+        candidateInstitution !== 'all' &&
+        (row.venue || '').trim() !== candidateInstitution
+      ) {
+        return false
+      }
+      if (
+        candidateLifecycle !== 'all' &&
+        (row.status || '').trim().toLowerCase() !== candidateLifecycle
+      ) {
+        return false
+      }
+      if ((row.editorialScore ?? 0) < minScore) return false
+      const review = normalizeReview(row.humanReviewStatus || row.editorial_status || '')
+      if (candidateReview !== 'all' && review !== candidateReview) return false
+      if (candidateMissingOnly && !(row.missingOptionalFields || []).length) return false
+      if (candidateCitationComplete) {
+        const cites = row.citations || []
+        const hasEx = cites.some(
+          (c) =>
+            c.type === 'exhibition' ||
+            c.field === 'title' ||
+            c.field === 'dates' ||
+            (c.supports || []).includes('dates'),
+        )
+        if (!hasEx) return false
+      }
+      return filterExhibitions([row], { query: '', city: 'all', admission: candidateAdmission }).length > 0
+    })
+  }, [
+    candidatePool,
+    candidateCity,
+    candidateInstitution,
+    candidateLifecycle,
+    candidateMinScore,
+    candidateReview,
+    candidateAdmission,
+    candidateMissingOnly,
+    candidateCitationComplete,
+  ])
 
   const sourceTypes = useMemo(() => uniq(sources.map((r) => r.source_type || r.category)), [sources])
   const labels = useMemo(() => uniq(pulse.map((r) => r.pulse_label)), [pulse])
@@ -324,9 +388,106 @@ export default function PulseDashboard() {
           </div>
         </section>
 
+        <section className="mt-10 rounded-2xl border border-stone-300 bg-stone-50 p-4 shadow-sm sm:p-6">
+          <h2 className="font-serif text-xl text-stone-900">Yuranja candidates</h2>
+          <p className="mt-1 text-sm text-stone-600">
+            Curated shortlist for editorial review. Approve only after verifying the official
+            exhibition page and dates. Run{' '}
+            <code className="rounded bg-stone-200/80 px-1.5 py-0.5 text-xs">
+              python3 backend/src/main.py build-yuranja-candidates
+            </code>{' '}
+            after each crawl.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <FilterSelect
+              label="City"
+              value={candidateCity}
+              onChange={setCandidateCity}
+              options={['all', ...cities]}
+            />
+            <FilterSelect
+              label="Institution"
+              value={candidateInstitution}
+              onChange={setCandidateInstitution}
+              options={['all', ...institutions]}
+            />
+            <FilterSelect
+              label="Current / upcoming"
+              value={candidateLifecycle}
+              onChange={setCandidateLifecycle}
+              options={['all', 'current', 'upcoming']}
+            />
+            <FilterSelect
+              label="Min editorial score"
+              value={candidateMinScore}
+              onChange={setCandidateMinScore}
+              options={['0', '55', '65', '75', '85']}
+            />
+            <FilterSelect
+              label="Review status"
+              value={candidateReview}
+              onChange={setCandidateReview}
+              options={['all', ...REVIEW_OPTIONS]}
+              labels={{
+                needs_edit: 'Needs editing',
+              }}
+            />
+            <FilterSelect
+              label="Admission"
+              value={candidateAdmission}
+              onChange={(value) => setCandidateAdmission(value as AdmissionFilter)}
+              options={ADMISSION_FILTER_OPTIONS.map((option) => option.value)}
+              labels={Object.fromEntries(
+                ADMISSION_FILTER_OPTIONS.map((option) => [option.value, option.label]),
+              )}
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-stone-700">
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={candidateMissingOnly}
+                onChange={(e) => setCandidateMissingOnly(e.target.checked)}
+              />
+              Missing optional fields only
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={candidateCitationComplete}
+                onChange={(e) => setCandidateCitationComplete(e.target.checked)}
+              />
+              Citation complete
+            </label>
+          </div>
+          <p className="mt-4 text-sm text-stone-500">
+            {filteredCandidates.length} candidates shown
+            {candidatePool.length ? ` of ${candidatePool.length}` : ''}
+          </p>
+          <div className="mt-4 flex flex-col gap-4">
+            {loading ? (
+              <p className="text-sm text-stone-500">Loading…</p>
+            ) : filteredCandidates.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-stone-300 bg-white px-6 py-12 text-center text-sm text-stone-600">
+                No candidates match these filters. Build candidates after the latest crawl.
+              </p>
+            ) : (
+              filteredCandidates.map((row) => (
+                <ExhibitionCard
+                  key={`candidate-${row.candidateSlug || row.slug}-${row.exhibition_id}`}
+                  row={row}
+                  busy={busy}
+                  candidateMode
+                  onReview={(value) => void saveExhibitionReview(row, value)}
+                />
+              ))
+            )}
+          </div>
+        </section>
+
         <section className="mt-10">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-xl text-stone-900">Matching exhibitions</h2>
+            <h2 className="font-serif text-xl text-stone-900">All crawled exhibitions</h2>
             <p className="text-sm text-stone-500">
               {filteredExhibitions.length} shown
               {exhibitions.length ? ` of ${exhibitions.length}` : ''}
@@ -550,19 +711,32 @@ function ExhibitionCard({
   row,
   busy,
   onReview,
+  candidateMode = false,
 }: {
   row: EnrichedExhibition
   busy: string | null
   onReview: (value: string) => void
+  candidateMode?: boolean
 }) {
   const admission = admissionDisplay(row)
   const reservationRequired = Boolean(row.admission?.reservationRequired)
   const checkedAt = row.admission?.checkedAt || row.visitor_last_updated || row.dateChecked
   const editorial = normalizeReview(row.editorial_status || row.human_review_status || '')
   const sourceHref = row.exhibitionUrl || row.source_url
+  const admissionCite = (row.citations || []).find(
+    (c) => c.type === 'admission' || c.field === 'admission',
+  )
+  const exhibitionCite = (row.citations || []).find(
+    (c) => c.type === 'exhibition' || c.field === 'title' || c.field === 'dates',
+  )
+  const missing = row.missingOptionalFields || []
 
   return (
-    <article className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <article
+      className={`rounded-2xl border bg-white p-5 shadow-sm ${
+        candidateMode ? 'border-stone-300 ring-1 ring-stone-200/60' : 'border-stone-200'
+      }`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
@@ -580,8 +754,27 @@ function ExhibitionCard({
           <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700">
             {editorial}
           </span>
+          {candidateMode && typeof row.editorialScore === 'number' ? (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+              Score {row.editorialScore}
+            </span>
+          ) : null}
         </div>
       </div>
+
+      {candidateMode && row.selectionReason ? (
+        <p className="mt-3 text-sm text-stone-700">
+          <span className="font-semibold text-stone-500">Selection reason:</span>{' '}
+          {row.selectionReason}
+        </p>
+      ) : null}
+
+      {candidateMode && missing.length ? (
+        <p className="mt-2 text-xs text-stone-500">
+          <span className="font-semibold uppercase tracking-wide">Missing:</span>{' '}
+          {missing.join(', ')}
+        </p>
+      ) : null}
 
       <p className="mt-3 text-base font-medium text-stone-900">{row.title || '—'}</p>
       <p className="mt-2 text-sm text-stone-600">
@@ -674,17 +867,27 @@ function ExhibitionCard({
       ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-4 text-sm">
-        {sourceHref ? (
+        {sourceHref || exhibitionCite?.url ? (
           <a
-            href={sourceHref}
+            href={sourceHref || exhibitionCite?.url}
             target="_blank"
             rel="noreferrer noopener"
             className="text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
           >
-            Open source
+            Open official exhibition source
           </a>
         ) : null}
-        {row.website ? (
+        {admissionCite?.url ? (
+          <a
+            href={admissionCite.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-stone-700 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+          >
+            Open official admission source
+          </a>
+        ) : null}
+        {row.website && row.website !== sourceHref ? (
           <a
             href={row.website}
             target="_blank"
@@ -696,22 +899,50 @@ function ExhibitionCard({
         ) : null}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
-          Editorial review
-        </label>
-        <select
-          className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
-          value={editorial}
-          disabled={busy?.startsWith('review-')}
-          onChange={(e) => onReview(e.target.value)}
-        >
-          {REVIEW_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === 'needs_edit' ? 'Needs editing' : opt}
-            </option>
-          ))}
-        </select>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {candidateMode ? (
+          <>
+            {REVIEW_OPTIONS.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                disabled={busy?.startsWith('review-')}
+                onClick={() => onReview(opt)}
+                className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition ${
+                  editorial === opt
+                    ? 'bg-stone-900 text-white'
+                    : 'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50'
+                }`}
+              >
+                {opt === 'approved'
+                  ? 'Approve'
+                  : opt === 'needs_edit'
+                    ? 'Needs editing'
+                    : opt === 'rejected'
+                      ? 'Reject'
+                      : 'Pending'}
+              </button>
+            ))}
+          </>
+        ) : (
+          <>
+            <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              Editorial review
+            </label>
+            <select
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+              value={editorial}
+              disabled={busy?.startsWith('review-')}
+              onChange={(e) => onReview(e.target.value)}
+            >
+              {REVIEW_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt === 'needs_edit' ? 'Needs editing' : opt}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
     </article>
   )

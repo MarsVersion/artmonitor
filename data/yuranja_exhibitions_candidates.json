@@ -1,0 +1,819 @@
+{
+  "generated_at": "2026-08-23T19:57:15.292912+00:00",
+  "count": 14,
+  "threshold": 65,
+  "candidates": [
+    {
+      "slug": "ryu-in-duality-2026",
+      "id": "arario-gallery-seoul-ryu-in-duality-2026",
+      "title": "RYU In: Duality",
+      "artists": [
+        "RYU In"
+      ],
+      "curators": [],
+      "venue": "Arario Gallery Seoul",
+      "city": "Seoul",
+      "country": "South Korea",
+      "dates": {
+        "start": "2026-04-14",
+        "end": "2027-04-11"
+      },
+      "address": "85 Yulgok-ro, Jongno-gu, Seoul",
+      "openingHours": "",
+      "website": "https://www.arariogallery.com/exhibitions/375-ryu-in-duality-solo-exhibition/",
+      "description": "RYU In: Duality at Arario Gallery Seoul is a solo exhibition by RYU In. It is on view from 2026-04-14 to 2027-04-11.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.arariogallery.com/exhibitions/375-ryu-in-duality-solo-exhibition/",
+          "publisher": "Arario Gallery Seoul",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "14 Apr 2026 - 11 Apr 2027"
+        }
+      ],
+      "editorialScore": 60,
+      "selectionReason": "solo presentation; single-artist focus; retained below 65 with documented editorial case",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "mariko-mori-all-that-shines-2026",
+      "id": "mori-art-museum-mariko-mori-all-that-shines-2026",
+      "title": "Mariko Mori: All That Shines",
+      "artists": [
+        "Mariko Mori"
+      ],
+      "curators": [],
+      "venue": "Mori Art Museum",
+      "city": "Tokyo",
+      "country": "Japan",
+      "dates": {
+        "start": "2026-10-31",
+        "end": "2027-03-28"
+      },
+      "address": "Roppongi Hills Mori Tower 53F, 6-10-1 Roppongi, Minato-ku, Tokyo",
+      "openingHours": "",
+      "website": "https://www.mori.art.museum/en/exhibitions/marikomori/index.html",
+      "description": "Mariko Mori: All That Shines at Mori Art Museum is a solo exhibition by Mariko Mori. It is on view from 2026-10-31 to 2027-03-28.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-07-02"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.mori.art.museum/en/exhibitions/marikomori/index.html",
+          "publisher": "Mori Art Museum",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "2026.10.31 [Sat] - 2027.3.28"
+        }
+      ],
+      "editorialScore": 74,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "ron-mueck-2026",
+      "id": "mori-art-museum-ron-mueck-2026",
+      "title": "Ron Mueck",
+      "artists": [
+        "Ron Mueck"
+      ],
+      "curators": [],
+      "venue": "Mori Art Museum",
+      "city": "Tokyo",
+      "country": "Japan",
+      "dates": {
+        "start": "2026-04-29",
+        "end": "2026-09-23"
+      },
+      "address": "Roppongi Hills Mori Tower 53F, 6-10-1 Roppongi, Minato-ku, Tokyo",
+      "openingHours": "",
+      "website": "https://www.mori.art.museum/en/exhibitions/ronmueck/index.html",
+      "description": "Ron Mueck at Mori Art Museum is a solo exhibition by Ron Mueck. It is on view from 2026-04-29 to 2026-09-23.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-07-02"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.mori.art.museum/en/exhibitions/ronmueck/index.html",
+          "publisher": "Mori Art Museum",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "2026.4.29 [Wed] - 9.23"
+        }
+      ],
+      "editorialScore": 70,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "exhibition-in-collaboration-with-the-maebashi-biennale-2026-small-arch-2026",
+      "id": "taka-ishii-gallery-exhibition-in-collaboration-with-the-maebashi-biennale-2026--2026",
+      "title": "Exhibition in collaboration with the Maebashi Biennale 2026 “Small Architectures: Light, Void, and the City”",
+      "artists": [],
+      "curators": [],
+      "venue": "Taka Ishii Gallery",
+      "city": "Tokyo",
+      "country": "Japan",
+      "dates": {
+        "start": "2026-09-19",
+        "end": "2026-10-27"
+      },
+      "address": "complex665 3F, 6-5-24 Roppongi, Minato-ku, Tokyo",
+      "openingHours": "",
+      "website": "https://www.takaishiigallery.com/en/archives/43912/",
+      "description": "Exhibition in collaboration with the Maebashi Biennale 2026 “Small Architectures: Light, Void, and the City” is a group exhibition at Taka Ishii Gallery, on view from 2026-09-19 to 2026-10-27.",
+      "yuranjaNote": "",
+      "format": "group",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.takaishiigallery.com/en/archives/43912/",
+          "publisher": "Taka Ishii Gallery",
+          "supports": [
+            "title",
+            "dates"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "Sep 19 – Oct 27, 2026"
+        }
+      ],
+      "editorialScore": 58,
+      "selectionReason": "survey or biennial programme; concept-led group exhibition; retained below 65 with documented editorial case",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission",
+        "artists"
+      ]
+    },
+    {
+      "slug": "shojo-manga-infinity-moto-hagio-ryoko-yamagishi-and-waki-yamato-2026",
+      "id": "nact-tokyo-shojo-manga-infinity-moto-hagio-ryoko-yamagishi-and-waki-yam-2026",
+      "title": "Shojo Manga Infinity: Moto Hagio, Ryoko Yamagishi, and Waki Yamato",
+      "artists": [
+        "Moto Hagio",
+        "Ryoko Yamagishi",
+        "Waki Yamato"
+      ],
+      "curators": [],
+      "venue": "The National Art Center, Tokyo",
+      "city": "Tokyo",
+      "country": "Japan",
+      "dates": {
+        "start": "2026-10-28",
+        "end": "2027-02-08"
+      },
+      "address": "7-22-2 Roppongi, Minato-ku, Tokyo",
+      "openingHours": "",
+      "website": "https://www.nact.jp/english/exhibition_special/2026/shojomanga/",
+      "description": "Shojo Manga Infinity: Moto Hagio, Ryoko Yamagishi, and Waki Yamato at The National Art Center, Tokyo presents work by Moto Hagio, Ryoko Yamagishi, Waki Yamato. The exhibition runs from 2026-10-28 to 2027-02-08.",
+      "yuranjaNote": "",
+      "format": "group",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.nact.jp/english/exhibition_special/2026/shojomanga/",
+          "publisher": "The National Art Center, Tokyo",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "October 28 (Wed), 2026 - February 8 (Mon), 2027"
+        }
+      ],
+      "editorialScore": 56,
+      "selectionReason": "concept-led group exhibition; major art institution; retained below 65 with documented editorial case",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "silke-otto-knapp-2026",
+      "id": "taka-ishii-gallery-silke-otto-knapp-2026",
+      "title": "Silke Otto-Knapp",
+      "artists": [
+        "Silke Otto-Knapp"
+      ],
+      "curators": [],
+      "venue": "Taka Ishii Gallery",
+      "city": "Tokyo",
+      "country": "Japan",
+      "dates": {
+        "start": "2026-08-01",
+        "end": "2026-09-19"
+      },
+      "address": "complex665 3F, 6-5-24 Roppongi, Minato-ku, Tokyo",
+      "openingHours": "",
+      "website": "https://www.takaishiigallery.com/en/archives/43672/",
+      "description": "Silke Otto-Knapp at Taka Ishii Gallery is a solo exhibition by Silke Otto-Knapp. It is on view from 2026-08-01 to 2026-09-19.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.takaishiigallery.com/en/archives/43672/",
+          "publisher": "Taka Ishii Gallery",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "Aug 1 – Sep 19, 2026"
+        }
+      ],
+      "editorialScore": 56,
+      "selectionReason": "solo presentation; single-artist focus; retained below 65 with documented editorial case",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "raul-silva-gateway-2026",
+      "id": "museo-jumex-raul-silva-gateway-16-oct-2026-07-feb-2027-2026",
+      "title": "RAÚL SILVA: GATEWAY",
+      "artists": [
+        "RAÚL SILVA"
+      ],
+      "curators": [],
+      "venue": "Museo Jumex",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-10-16",
+        "end": "2027-02-07"
+      },
+      "address": "Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",
+      "openingHours": "",
+      "website": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+      "description": "RAÚL SILVA: GATEWAY at Museo Jumex is a solo exhibition by RAÚL SILVA. It is on view from 2026-10-16 to 2027-02-07.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "16.OCT.2026 - 07.FEB.2027"
+        }
+      ],
+      "editorialScore": 69,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "richard-prince-tell-me-everything-2026",
+      "id": "museo-jumex-richard-prince-tell-me-everything-26-sep-2026-07-feb-2027-2026",
+      "title": "Richard Prince: Tell Me Everything",
+      "artists": [
+        "Richard Prince"
+      ],
+      "curators": [],
+      "venue": "Museo Jumex",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-09-26",
+        "end": "2027-02-07"
+      },
+      "address": "Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",
+      "openingHours": "",
+      "website": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+      "description": "Richard Prince: Tell Me Everything at Museo Jumex is a solo exhibition by Richard Prince. It is on view from 2026-09-26 to 2027-02-07.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "26.SEP.2026 - 07.FEB.2027"
+        }
+      ],
+      "editorialScore": 69,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "alvaro-urbano-helen-2026",
+      "id": "museo-jumex-upcoming-exhibition-alvaro-urbano-helen-16-oct-2026-07-feb-2-2026",
+      "title": "ÁLVARO URBANO: HELEN",
+      "artists": [
+        "ÁLVARO URBANO"
+      ],
+      "curators": [],
+      "venue": "Museo Jumex",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-10-16",
+        "end": "2027-02-07"
+      },
+      "address": "Miguel de Cervantes Saavedra 303, Granada, Miguel Hidalgo, 11529 Mexico City",
+      "openingHours": "",
+      "website": "https://www.fundacionjumex.org/en/exposiciones/822-alvaro-urbano-helen",
+      "description": "ÁLVARO URBANO: HELEN at Museo Jumex is a solo exhibition by ÁLVARO URBANO. It is on view from 2026-10-16 to 2027-02-07.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/822-alvaro-urbano-helen",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "16.OCT.2026 - 07.FEB.2027"
+        }
+      ],
+      "editorialScore": 69,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "tim-hecker-2026",
+      "id": "muac-tim-hecker-2026",
+      "title": "Tim Hecker",
+      "artists": [
+        "Tim Hecker"
+      ],
+      "curators": [],
+      "venue": "MUAC – Museo Universitario Arte Contemporáneo",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "dates": {
+        "start": "2026-04-25",
+        "end": "2026-09-27"
+      },
+      "address": "Insurgentes Sur 3000, Centro Cultural Universitario, Coyoacán, Mexico City",
+      "openingHours": "",
+      "website": "https://muac.unam.mx/exposicion/tim-hecker",
+      "description": "Tim Hecker at MUAC – Museo Universitario Arte Contemporáneo is a solo exhibition by Tim Hecker. It is on view from 2026-04-25 to 2026-09-27.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://muac.unam.mx/exposicion/tim-hecker",
+          "publisher": "MUAC – Museo Universitario Arte Contemporáneo",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "25.04.2026 27.09.2026"
+        }
+      ],
+      "editorialScore": 62,
+      "selectionReason": "solo presentation; single-artist focus; major art institution; retained below 65 with documented editorial case",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "cezanne-et-nous-2026",
+      "id": "centre-pompidou-cezanne-et-nous-2026",
+      "title": "Cezanne et nous",
+      "artists": [
+        "Cezanne"
+      ],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-09-23",
+        "end": "2027-01-17"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/en/program/calendar/event/2s1FNB8",
+      "description": "Cezanne et nous at Centre Pompidou is a solo exhibition by Cezanne. It is on view from 2026-09-23 to 2027-01-17.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/en/program/calendar/event/2s1FNB8",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "23 September 2026 – 17 January 2027"
+        }
+      ],
+      "editorialScore": 65,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "francois-morellet-100-pour-cent-2026",
+      "id": "centre-pompidou-francois-morellet-100-pour-cent-2026",
+      "title": "François Morellet 100 pour cent",
+      "artists": [
+        "François Morellet"
+      ],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-04-03",
+        "end": "2026-09-29"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+      "description": "François Morellet 100 pour cent at Centre Pompidou is a solo exhibition by François Morellet. It is on view from 2026-04-03 to 2026-09-29.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "3 April – 29 September 2026"
+        }
+      ],
+      "editorialScore": 65,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "hilma-af-klint-2026",
+      "id": "centre-pompidou-hilma-af-klint-2026",
+      "title": "Hilma af Klint",
+      "artists": [
+        "Hilma af Klint"
+      ],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-05-06",
+        "end": "2026-08-30"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/en/program/calendar/event/eLKKuC9",
+      "description": "Hilma af Klint at Centre Pompidou is a solo exhibition by Hilma af Klint. It is on view from 2026-05-06 to 2026-08-30.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/en/program/calendar/event/eLKKuC9",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "6 May – 30 August 2026"
+        }
+      ],
+      "editorialScore": 65,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "current",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    },
+    {
+      "slug": "louise-bourgeois-extreme-tension-dessins-et-gravures-2026",
+      "id": "centre-pompidou-louise-bourgeois-extreme-tension-dessins-et-gravures-2026",
+      "title": "Louise Bourgeois. Extrême tension Dessins et gravures",
+      "artists": [
+        "Louise Bourgeois"
+      ],
+      "curators": [],
+      "venue": "Centre Pompidou",
+      "city": "Paris",
+      "country": "France",
+      "dates": {
+        "start": "2026-10-20",
+        "end": "2027-02-21"
+      },
+      "address": "Place Georges-Pompidou, 75004 Paris",
+      "openingHours": "",
+      "website": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+      "description": "Louise Bourgeois. Extrême tension Dessins et gravures at Centre Pompidou is a solo exhibition by Louise Bourgeois. It is on view from 2026-10-20 to 2027-02-21.",
+      "yuranjaNote": "",
+      "format": "solo",
+      "categories": [],
+      "mediaTypes": [],
+      "admission": {
+        "status": "unknown",
+        "display": "Check current admission",
+        "fromPrice": "",
+        "reservationRequired": false,
+        "ticketUrl": "",
+        "checkedAt": "2026-08-23"
+      },
+      "tags": [],
+      "citations": [
+        {
+          "type": "exhibition",
+          "url": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "title",
+            "dates",
+            "artists"
+          ],
+          "checkedAt": "2026-08-23",
+          "note": "20 octobre 2026 – 21 février 2027"
+        }
+      ],
+      "editorialScore": 65,
+      "selectionReason": "solo presentation; single-artist focus; major art institution",
+      "humanReviewStatus": "pending",
+      "status": "upcoming",
+      "missingOptionalFields": [
+        "description",
+        "curators",
+        "openingHours",
+        "categories",
+        "admission"
+      ]
+    }
+  ]
+}

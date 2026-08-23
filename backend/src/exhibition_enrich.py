@@ -339,7 +339,34 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         "citations": citations,
         "dateChecked": normalize_text(row.get("date_checked") or visitor_checked)[:10],
         "exhibition_id": normalize_text(row.get("exhibition_id") or row.get("id")),
+        "editorialScore": int(row.get("editorial_score") or 0),
+        "selectionReason": normalize_text(row.get("selection_reason")),
+        "isYuranjaCandidate": bool(row.get("is_yuranja_candidate")),
+        "candidateSlug": normalize_text(row.get("candidate_slug")),
+        "humanReviewStatus": normalize_text(
+            row.get("editorial_status") or row.get("human_review_status") or "pending"
+        ),
+        "missingOptionalFields": _missing_optional_from_row(row),
     }
+
+
+def _missing_optional_from_row(row: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if not normalize_text(row.get("description")):
+        missing.append("description")
+    if not _parse_json_list(row.get("curators")):
+        missing.append("curators")
+    if not normalize_text(row.get("opening_hours")):
+        missing.append("openingHours")
+    if not normalize_text(row.get("format")):
+        missing.append("format")
+    if not _parse_json_list(row.get("categories")):
+        missing.append("categories")
+    if normalize_text(row.get("admission_status") or "unknown") == "unknown":
+        missing.append("admission")
+    if not _parse_json_list(row.get("artists")):
+        missing.append("artists")
+    return missing
 
 
 def enrich_rows(rows: list[dict[str, Any]], visitor_index: VisitorIndex | None = None) -> list[dict[str, Any]]:
@@ -447,19 +474,62 @@ def matches_inquiry(row: dict[str, Any], query: str) -> bool:
     return all(token in haystack for token in tokens)
 
 
+def has_complete_citations(row: dict[str, Any]) -> bool:
+    cites = row.get("citations") or []
+    has_ex = False
+    has_dates = False
+    for c in cites:
+        if not isinstance(c, dict):
+            continue
+        field = str(c.get("field") or "").casefold()
+        if field in {"title", "dates"} or c.get("type") == "exhibition":
+            has_ex = True
+        if field == "dates" or "dates" in (c.get("supports") or []):
+            has_dates = True
+    return has_ex and has_dates
+
+
 def filter_exhibitions(
     rows: list[dict[str, Any]],
     *,
     query: str = "",
     city: str = "",
     admission: str = "all",
+    candidates_only: bool = False,
+    institution: str = "",
+    lifecycle: str = "all",
+    min_score: int = 0,
+    review_status: str = "all",
+    missing_fields: bool = False,
+    citation_complete: bool = False,
 ) -> list[dict[str, Any]]:
     city_filter = normalize_text(city)
+    institution_filter = normalize_text(institution)
+    lifecycle_filter = normalize_text(lifecycle).casefold()
+    review_filter = normalize_text(review_status).casefold()
     filtered: list[dict[str, Any]] = []
     for row in rows:
+        if candidates_only and not row.get("isYuranjaCandidate"):
+            continue
         if city_filter and city_filter.casefold() != "all":
             if normalize_text(row.get("city")).casefold() != city_filter.casefold():
                 continue
+        if institution_filter and institution_filter.casefold() != "all":
+            if normalize_text(row.get("venue")).casefold() != institution_filter.casefold():
+                continue
+        if lifecycle_filter and lifecycle_filter != "all":
+            if normalize_text(row.get("status")).casefold() != lifecycle_filter:
+                continue
+        if min_score > 0 and int(row.get("editorialScore") or 0) < min_score:
+            continue
+        if review_filter and review_filter != "all":
+            rv = normalize_text(row.get("humanReviewStatus") or row.get("editorial_status")).casefold()
+            if rv != review_filter:
+                continue
+        if missing_fields and not (row.get("missingOptionalFields") or []):
+            continue
+        if citation_complete and not has_complete_citations(row):
+            continue
         if not matches_admission_filter(row, admission):
             continue
         if not matches_inquiry(row, query):

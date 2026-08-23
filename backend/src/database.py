@@ -141,6 +141,10 @@ def _ensure_exhibition_columns(conn: sqlite3.Connection) -> None:
         "editorial_status": "TEXT DEFAULT 'pending'",
         "date_checked": "TEXT",
         "amenities": "TEXT",
+        "editorial_score": "INTEGER DEFAULT 0",
+        "selection_reason": "TEXT",
+        "is_yuranja_candidate": "INTEGER DEFAULT 0",
+        "candidate_slug": "TEXT",
     }
     for col, decl in additions.items():
         if col not in existing:
@@ -320,6 +324,35 @@ def update_exhibition_editorial_status(
     cur = conn.execute(
         "UPDATE exhibitions SET editorial_status = ? WHERE id = ?",
         (editorial_status, exhibition_id),
+    )
+    return int(cur.rowcount or 0)
+
+
+def update_exhibition_candidate_meta(
+    conn: sqlite3.Connection,
+    *,
+    exhibition_id: str,
+    editorial_score: int,
+    selection_reason: str,
+    is_yuranja_candidate: int,
+    candidate_slug: str,
+) -> int:
+    cur = conn.execute(
+        """
+        UPDATE exhibitions
+        SET editorial_score = ?,
+            selection_reason = ?,
+            is_yuranja_candidate = ?,
+            candidate_slug = ?
+        WHERE id = ?
+        """,
+        (
+            int(editorial_score),
+            selection_reason,
+            int(is_yuranja_candidate),
+            candidate_slug,
+            exhibition_id,
+        ),
     )
     return int(cur.rowcount or 0)
 

@@ -6,3 +6,4 @@ python-dotenv
 playwright
 fastapi
 uvicorn[standard]
+python-docx

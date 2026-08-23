@@ -112,10 +112,24 @@ export type EnrichedExhibition = {
   human_review_status?: string
   editorial_status?: string
   archive_status?: string
-  citations?: Array<{ field?: string; url?: string; checkedAt?: string; note?: string }>
+  citations?: Array<{
+    field?: string
+    type?: string
+    url?: string
+    publisher?: string
+    supports?: string[]
+    checkedAt?: string
+    note?: string
+  }>
   dateChecked?: string
   exhibitionUrl?: string
   exhibition_id?: string
+  editorialScore?: number
+  selectionReason?: string
+  isYuranjaCandidate?: boolean
+  candidateSlug?: string
+  humanReviewStatus?: string
+  missingOptionalFields?: string[]
 }
 
 export type WatchStatus = 'watching' | 'interested' | 'archived'

@@ -48,6 +48,13 @@ def _load_enriched_exhibitions(
     query: str = "",
     city: str = "",
     admission: str = "all",
+    candidates_only: bool = False,
+    institution: str = "",
+    lifecycle: str = "all",
+    min_score: int = 0,
+    review_status: str = "all",
+    missing_fields: bool = False,
+    citation_complete: bool = False,
 ) -> list[dict[str, Any]]:
     conn = database.connect()
     database.init_schema(conn)
@@ -68,6 +75,13 @@ def _load_enriched_exhibitions(
         query=query,
         city=city,
         admission=admission,
+        candidates_only=candidates_only,
+        institution=institution,
+        lifecycle=lifecycle,
+        min_score=min_score,
+        review_status=review_status,
+        missing_fields=missing_fields,
+        citation_complete=citation_complete,
     )
 
 
@@ -176,8 +190,26 @@ def api_exhibitions(
     q: str = Query(default="", description="Inquiry text"),
     city: str = Query(default="", description="City filter"),
     admission: str = Query(default="all", description="Admission filter"),
+    candidates_only: bool = Query(default=False, description="Yuranja candidates only"),
+    institution: str = Query(default="", description="Institution filter"),
+    lifecycle: str = Query(default="all", description="current | upcoming | all"),
+    min_score: int = Query(default=0, description="Minimum editorial score"),
+    review_status: str = Query(default="all", description="Human review status"),
+    missing_fields: bool = Query(default=False, description="Only rows missing optional fields"),
+    citation_complete: bool = Query(default=False, description="Only rows with complete citations"),
 ) -> list[dict[str, Any]]:
-    return _load_enriched_exhibitions(query=q, city=city, admission=admission)
+    return _load_enriched_exhibitions(
+        query=q,
+        city=city,
+        admission=admission,
+        candidates_only=candidates_only,
+        institution=institution,
+        lifecycle=lifecycle,
+        min_score=min_score,
+        review_status=review_status,
+        missing_fields=missing_fields,
+        citation_complete=citation_complete,
+    )
 
 
 @app.get("/api/pulse-updates")

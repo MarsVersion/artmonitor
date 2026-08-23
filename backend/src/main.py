@@ -272,7 +272,8 @@ def main() -> None:
     if cmd is None:
         print(
             "Usage: python backend/src/main.py run [--force] | crawl-reliable | seed-sync | "
-            "cleanup | test-hongkong | ingest-cities [--force] | export-yuranja | report",
+            "cleanup | test-hongkong | ingest-cities [--force] | build-yuranja-candidates | "
+            "export-yuranja | export-yuranja-docx | report",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -343,6 +344,20 @@ def main() -> None:
         result = yuranja_export.export_yuranja()
         if result.get("message"):
             print(result["message"])
+    elif cmd == "export-yuranja-docx":
+        load_dotenv(database.BACKEND_ROOT / ".env")
+        import yuranja_docx
+
+        result = yuranja_docx.export_yuranja_docx()
+        if result.get("message"):
+            print(result["message"])
+    elif cmd == "build-yuranja-candidates":
+        load_dotenv(database.BACKEND_ROOT / ".env")
+        import yuranja_candidates
+
+        result = yuranja_candidates.run_build_yuranja_candidates()
+        if result.get("message"):
+            print(result["message"])
     elif cmd == "report":
         if force:
             print("note: --force applies only to run / ingest-cities", file=sys.stderr)
@@ -352,7 +367,8 @@ def main() -> None:
     else:
         print(
             f"Unknown command: {cmd!r}. Expected: run | crawl-reliable | seed-sync | cleanup | "
-            "test-hongkong | ingest-cities | export-yuranja | report",
+            "test-hongkong | ingest-cities | build-yuranja-candidates | export-yuranja | "
+            "export-yuranja-docx | report",
             file=sys.stderr,
         )
         sys.exit(1)

@@ -233,7 +233,7 @@ def missing_required_fields(record: dict[str, Any]) -> list[str]:
         missing.append("venue")
     if not record.get("city"):
         missing.append("city")
-    if not record.get("exhibitionUrl") and not record.get("source_url"):
+    if not record.get("exhibitionUrl") and not record.get("source_url") and not record.get("website"):
         missing.append("exhibitionUrl")
     dates = record.get("dates") or {}
     if not dates.get("start") and not dates.get("end"):
@@ -246,8 +246,48 @@ def missing_required_fields(record: dict[str, Any]) -> list[str]:
     return missing
 
 
+def has_verified_dates(record: dict[str, Any]) -> bool:
+    dates = record.get("dates") or {}
+    return bool(str(dates.get("start") or "").strip() and str(dates.get("end") or "").strip())
+
+
+def has_exhibition_citation(record: dict[str, Any]) -> bool:
+    cites = record.get("citations") or []
+    url = str(record.get("exhibitionUrl") or record.get("website") or record.get("source_url") or "").strip()
+    if not url:
+        return False
+    for c in cites:
+        if not isinstance(c, dict):
+            continue
+        field = str(c.get("field") or "").casefold()
+        ctype = str(c.get("type") or "").casefold()
+        if field in {"title", "dates"} or ctype == "exhibition":
+            if str(c.get("url") or "").strip():
+                return True
+    return bool(url and record.get("title"))
+
+
+def export_eligible(record: dict[str, Any]) -> bool:
+    status = str(record.get("status") or record.get("editorial_status") or "").casefold()
+    editorial = str(record.get("editorial_status") or record.get("humanReviewStatus") or "").casefold()
+    if editorial != "approved":
+        return False
+    if str(record.get("archive_status") or "active").casefold() != "active":
+        return False
+    if record.get("is_duplicate"):
+        return False
+    if str(record.get("status") or "").casefold() not in {"current", "upcoming"}:
+        return False
+    if not has_verified_dates(record):
+        return False
+    if not has_exhibition_citation(record):
+        return False
+    return True
+
+
 def to_export_shape(record: dict[str, Any]) -> dict[str, Any]:
     """Public Yuranja export object — approved records only."""
+    ex_url = str(record.get("exhibitionUrl") or record.get("website") or record.get("source_url") or "")
     return {
         "slug": record.get("slug"),
         "title": record.get("title"),
@@ -255,10 +295,11 @@ def to_export_shape(record: dict[str, Any]) -> dict[str, Any]:
         "curators": record.get("curators") or [],
         "venue": record.get("venue"),
         "city": record.get("city"),
+        "country": record.get("country") or "",
         "dates": record.get("dates") or {"start": "", "end": ""},
         "address": record.get("address") or "",
         "openingHours": record.get("openingHours") or "",
-        "website": record.get("website") or "",
+        "website": ex_url,
         "description": record.get("description") or "",
         "yuranjaNote": record.get("yuranjaNote") or "",
         "format": record.get("format") or "",
@@ -271,7 +312,5 @@ def to_export_shape(record: dict[str, Any]) -> dict[str, Any]:
         },
         "tags": record.get("tags") or [],
         "citations": record.get("citations") or [],
-        "exhibitionUrl": record.get("exhibitionUrl") or record.get("source_url") or "",
         "dateChecked": record.get("dateChecked") or "",
-        "country": record.get("country") or "",
     }

@@ -61,6 +61,8 @@ export default function PulseDashboard() {
   const [pulseLabel, setPulseLabel] = useState('all')
   const [fetchStatus, setFetchStatus] = useState('all')
   const [reviewFilter, setReviewFilter] = useState('all')
+  const [admission, setAdmission] = useState('all')
+  const [query, setQuery] = useState('')
 
   const loadAll = useCallback(async () => {
     setError(null)
@@ -95,12 +97,40 @@ export default function PulseDashboard() {
   )
 
   const filteredPulse = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase()
+    const asksForAdmission = /\b(admission|entrance|entry)( fee| price| cost)?\b/.test(needle)
+    const asksForFreeAdmission = asksForAdmission && /\bfree\b/.test(needle)
     return pulse.filter((r) => {
       if (city !== 'all' && (r.city || '').trim() !== city) return false
       if (pulseLabel !== 'all' && (r.pulse_label || '').trim() !== pulseLabel) return false
       if (fetchStatus !== 'all' && (r.fetch_status || '').trim() !== fetchStatus) return false
       const rv = normalizeReview(r.human_review_status || '')
       if (reviewFilter !== 'all' && rv !== reviewFilter) return false
+      const fee = (r.entry_fee || '').trim().toLocaleLowerCase()
+      if (admission === 'free' && !fee.includes('free')) return false
+      if (admission === 'paid' && (!fee || fee.includes('free') || fee === 'unknown')) return false
+      if (admission === 'known' && (!fee || fee === 'unknown')) return false
+      if (admission === 'unknown' && fee && fee !== 'unknown') return false
+      if (asksForFreeAdmission && !fee.includes('free')) return false
+      if (asksForAdmission && !asksForFreeAdmission && (!fee || fee === 'unknown')) return false
+      if (needle && !asksForAdmission) {
+        const haystack = [
+          r.city,
+          r.country,
+          r.institution,
+          r.exhibition_title,
+          r.title,
+          r.artist_names,
+          r.artists,
+          r.curators,
+          r.public_summary,
+          r.entry_fee,
+          r.amenities,
+        ]
+          .join(' ')
+          .toLocaleLowerCase()
+        if (!haystack.includes(needle)) return false
+      }
       if (sourceType !== 'all') {
         const url = (r.source_url || r.exhibitions_url || '').trim()
         const match = sources.find(
@@ -113,7 +143,7 @@ export default function PulseDashboard() {
       }
       return true
     })
-  }, [pulse, sources, city, sourceType, pulseLabel, fetchStatus, reviewFilter])
+  }, [pulse, sources, city, sourceType, pulseLabel, fetchStatus, reviewFilter, admission, query])
 
   async function runCrawl() {
     setBusy('crawl')
@@ -173,10 +203,10 @@ export default function PulseDashboard() {
             Local editorial
           </p>
           <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-stone-900 sm:text-4xl">
-            ZAKPUM Pulse Monitor
+            Yuranja Art Monitor
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
-            Run the crawler, refresh pulse rows, and triage reviews — all on your machine. Start the
+            Find cities and exhibitions, check visitor information, and triage reviews — all on your machine. Start the
             API with{' '}
             <code className="rounded bg-stone-200/80 px-1.5 py-0.5 text-xs">
               uvicorn backend.src.server:app --reload --port 8000
@@ -242,8 +272,24 @@ export default function PulseDashboard() {
 
         <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="font-serif text-lg text-stone-900">Filters</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="flex flex-col gap-1.5 text-sm text-stone-600 sm:col-span-2">
+              Inquiry
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="City, exhibition, artist, venue, entrance fee…"
+                className="rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-stone-900 shadow-sm outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+              />
+            </label>
             <FilterSelect label="City" value={city} onChange={setCity} options={['all', ...cities]} />
+            <FilterSelect
+              label="Admission"
+              value={admission}
+              onChange={setAdmission}
+              options={['all', 'free', 'paid', 'known', 'unknown']}
+            />
             <FilterSelect
               label="Source type"
               value={sourceType}
@@ -273,7 +319,7 @@ export default function PulseDashboard() {
 
         <section className="mt-10">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-xl text-stone-900">Pulse updates</h2>
+            <h2 className="font-serif text-xl text-stone-900">Matching exhibitions</h2>
             <p className="text-sm text-stone-500">
               {filteredPulse.length} shown{pulse.length ? ` of ${pulse.length}` : ''}
             </p>

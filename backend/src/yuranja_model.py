@@ -9,6 +9,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from exhibition_enrich import infer_format, parse_admission
+import admission_links
 from slugs import exhibition_record_id, slugify
 
 
@@ -128,8 +129,15 @@ def build_yuranja_record(
         visitor_checked = str(visitor.get("last_updated") or checked_at).strip()
 
     admission = parse_admission(entry_fee, amenities, visitor_checked)
-    if not ticket_url:
-        ticket_url = str(admission.get("ticketUrl") or "").strip()
+    admission = admission_links.ensure_admission_links(
+        admission,
+        exhibition_url=exhibition_url,
+        website=website,
+        visitor=visitor or {},
+        checked_at=checked_at,
+        validate_reachability=False,
+    )
+    ticket_url = str(admission.get("ticketUrl") or "").strip()
 
     status = lifecycle_status(start_date, end_date)
     archive_status = "archived" if status == "past" else "active"
@@ -142,7 +150,7 @@ def build_yuranja_record(
     key = dedupe_key(institution, title, start_date)
     checked = (checked_at or "")[:10]
 
-    citations: list[dict[str, str]] = []
+    citations: list[dict[str, Any]] = []
     if title and source_url:
         citations.append(citation(field="title", url=exhibition_url or source_url, checked_at=checked))
     if artists and source_url:
@@ -174,11 +182,19 @@ def build_yuranja_record(
         citations.append(
             citation(
                 field="admission",
-                url=ticket_url or website or source_url,
+                url=ticket_url or str(admission.get("informationUrl") or website or source_url),
                 checked_at=admission.get("checkedAt") or checked,
                 note="verified visitor information",
             )
         )
+    else:
+        lookup = admission_links.admission_lookup_citation(
+            admission=admission,
+            publisher=institution,
+            checked_at=checked,
+        )
+        if lookup:
+            citations.append(lookup)
 
     return {
         "id": rid,
@@ -201,10 +217,15 @@ def build_yuranja_record(
         "mediaTypes": media_types,
         "admission": {
             "status": admission.get("status", "unknown"),
-            "display": admission.get("display", "Check current admission"),
+            "display": admission.get(
+                "display",
+                "Admission not published — check the official visitor information",
+            ),
             "fromPrice": admission.get("fromPrice", ""),
-            "reservationRequired": bool(admission.get("reservationRequired")),
+            "reservationRequired": admission.get("reservationRequired"),
             "ticketUrl": ticket_url,
+            "informationUrl": admission.get("informationUrl", ""),
+            "informationLabel": admission.get("informationLabel", ""),
             "checkedAt": admission.get("checkedAt", ""),
         },
         "tags": [],
@@ -282,12 +303,19 @@ def export_eligible(record: dict[str, Any]) -> bool:
         return False
     if not has_exhibition_citation(record):
         return False
+    admission = record.get("admission") or {}
+    if not admission_links.has_usable_admission_link(admission):
+        return False
     return True
 
 
 def to_export_shape(record: dict[str, Any]) -> dict[str, Any]:
     """Public Yuranja export object — approved records only."""
     ex_url = str(record.get("exhibitionUrl") or record.get("website") or record.get("source_url") or "")
+    admission = record.get("admission") or {
+        "status": "unknown",
+        "display": "Admission not published — check the official visitor information",
+    }
     return {
         "slug": record.get("slug"),
         "title": record.get("title"),
@@ -305,11 +333,7 @@ def to_export_shape(record: dict[str, Any]) -> dict[str, Any]:
         "format": record.get("format") or "",
         "categories": record.get("categories") or [],
         "mediaTypes": record.get("mediaTypes") or [],
-        "admission": record.get("admission")
-        or {
-            "status": "unknown",
-            "display": "Check current admission",
-        },
+        "admission": admission,
         "tags": record.get("tags") or [],
         "citations": record.get("citations") or [],
         "dateChecked": record.get("dateChecked") or "",

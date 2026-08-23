@@ -37,8 +37,38 @@ export function admissionReservationRequired(row: EnrichedExhibition): boolean {
 export function admissionDisplay(row: EnrichedExhibition): string {
   const display = row.admission?.display?.trim()
   if (display) return display
-  if (admissionKnown(row)) return row.entry_fee || 'Check current admission'
-  return 'Check current admission'
+  if (admissionKnown(row)) return row.entry_fee || 'Admission not published'
+  return 'Admission not published'
+}
+
+export function admissionInformationUrl(row: EnrichedExhibition): string {
+  return (row.admission?.informationUrl || row.admission?.ticketUrl || '').trim()
+}
+
+export function admissionInformationLabel(row: EnrichedExhibition): string {
+  const label = row.admission?.informationLabel?.trim()
+  if (label === 'Official exhibition page') return 'Check on the official exhibition page'
+  if (label === 'Institution website') return 'Institution website'
+  if (label === 'Official visitor information') return 'Official visitor information'
+  if (label) return label
+  const kind = labelKindFromUrl(admissionInformationUrl(row))
+  if (kind === 'exhibition') return 'Check on the official exhibition page'
+  if (kind === 'institution') return 'Institution website'
+  return 'Official visitor information'
+}
+
+function labelKindFromUrl(url: string): 'exhibition' | 'institution' | 'visitor' {
+  const lower = url.toLowerCase()
+  if (/\/(exhibition|exhibitions|expo|exposition|event|archives?)\b/.test(lower)) {
+    return 'exhibition'
+  }
+  try {
+    const path = new URL(url).pathname.replace(/\/+$/, '') || '/'
+    if (path === '/' || /^\/(en|fr|jp|es|de|ko|zh)$/.test(path)) return 'institution'
+  } catch {
+    /* ignore */
+  }
+  return 'visitor'
 }
 
 function searchableText(row: EnrichedExhibition): string {

@@ -74,11 +74,20 @@ def _flat_from_yuranja(y: dict[str, Any], venue: dict[str, Any]) -> dict[str, An
         "categories": json.dumps(y.get("categories") or [], ensure_ascii=False),
         "media_types": json.dumps(y.get("mediaTypes") or [], ensure_ascii=False),
         "admission_status": admission.get("status", "unknown"),
-        "admission_display": admission.get("display", "Check current admission"),
+        "admission_display": admission.get(
+            "display",
+            "Admission not published — check the official visitor information",
+        ),
         "admission_from_price": admission.get("fromPrice", ""),
-        "admission_reservation_required": bool(admission.get("reservationRequired")),
+        "admission_reservation_required": (
+            None
+            if admission.get("status") == "unknown"
+            else bool(admission.get("reservationRequired"))
+        ),
         "admission_ticket_url": admission.get("ticketUrl", ""),
         "admission_checked_at": admission.get("checkedAt", ""),
+        "admission_information_url": admission.get("informationUrl", ""),
+        "admission_information_label": admission.get("informationLabel", ""),
         "exhibition_url": y.get("exhibitionUrl", ""),
         "citations_json": json.dumps(y.get("citations") or [], ensure_ascii=False),
         "dedupe_key": y.get("dedupe_key", ""),

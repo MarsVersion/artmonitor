@@ -12,6 +12,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import database
+import admission_links
 import yuranja_candidates as yc
 import yuranja_model as ym
 from slugs import slugify
@@ -41,15 +42,42 @@ def _row_to_record(row: Any) -> dict[str, Any]:
                 pass
         return [text]
 
+    status = str(row["admission_status"] or "unknown")
+    reservation_raw = row["admission_reservation_required"] if "admission_reservation_required" in row.keys() else None
+    if status.casefold() == "unknown":
+        reservation_value = None
+    else:
+        reservation_value = bool(reservation_raw)
+
+    info_url = ""
+    info_label = ""
+    if "admission_information_url" in row.keys():
+        info_url = str(row["admission_information_url"] or "")
+    if "admission_information_label" in row.keys():
+        info_label = str(row["admission_information_label"] or "")
+
     admission = {
-        "status": str(row["admission_status"] or "unknown"),
-        "display": str(row["admission_display"] or "Check current admission"),
+        "status": status,
+        "display": str(
+            row["admission_display"]
+            or "Admission not published — check the official visitor information"
+        ),
         "fromPrice": str(row["admission_from_price"] or ""),
-        "reservationRequired": bool(row["admission_reservation_required"]),
+        "reservationRequired": reservation_value,
         "ticketUrl": str(row["admission_ticket_url"] or ""),
+        "informationUrl": info_url,
+        "informationLabel": info_label,
         "checkedAt": str(row["admission_checked_at"] or ""),
     }
     ex_url = str(row["exhibition_url"] or row["source_url"] or "").strip()
+    website = str(row["website"] or "").strip()
+    admission = admission_links.ensure_admission_links(
+        admission,
+        exhibition_url=ex_url,
+        website=website,
+        checked_at=str(row["date_checked"] or ""),
+        validate_reachability=True,
+    )
     slug = str(row["candidate_slug"] or "").strip() or slugify(f"{row['name']}-{row['title']}")[:80]
     record = {
         "id": row["id"],
@@ -78,7 +106,7 @@ def _row_to_record(row: Any) -> dict[str, Any]:
                 "artists": _list(row["artists"]),
                 "description": row["description"],
                 "exhibitionUrl": ex_url,
-                "website": row["website"],
+                "website": website,
                 "admission": admission,
                 "citations": citations,
                 "dateChecked": row["date_checked"] or "",

@@ -35,9 +35,39 @@ def _artists(record: dict[str, Any]) -> str:
 
 def _admission(record: dict[str, Any]) -> str:
     admission = record.get("admission") or {}
-    display = admission.get("display") or "Check current admission"
     status = admission.get("status") or "unknown"
-    return f"{display} ({status})"
+    if status == "unknown":
+        return "Admission not published"
+    return str(admission.get("display") or "Admission not published")
+
+
+def _add_hyperlink(paragraph, url: str, text: str) -> None:
+    """Add a labelled hyperlink run to a paragraph."""
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    part = paragraph.part
+    r_id = part.relate_to(
+        url,
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+        is_external=True,
+    )
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), r_id)
+    new_run = OxmlElement("w:r")
+    r_pr = OxmlElement("w:rPr")
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), "0563C1")
+    u = OxmlElement("w:u")
+    u.set(qn("w:val"), "single")
+    r_pr.append(color)
+    r_pr.append(u)
+    new_run.append(r_pr)
+    text_elem = OxmlElement("w:t")
+    text_elem.text = text
+    new_run.append(text_elem)
+    hyperlink.append(new_run)
+    paragraph._p.append(hyperlink)
 
 
 def _citations(record: dict[str, Any]) -> tuple[str, str]:
@@ -159,7 +189,22 @@ def export_yuranja_docx(*, path: Path | None = None) -> dict[str, Any]:
 
         p = doc.add_paragraph()
         p.add_run("Admission: ").bold = True
-        p.add_run(_admission(record))
+        admission = record.get("admission") or {}
+        if (admission.get("status") or "unknown") == "unknown":
+            p.add_run("Admission not published")
+            link_p = doc.add_paragraph()
+            label = str(admission.get("informationLabel") or "Official visitor information")
+            url = str(admission.get("informationUrl") or admission.get("ticketUrl") or "")
+            if url:
+                _add_hyperlink(link_p, url, label)
+            else:
+                link_p.add_run("No official admission information URL available").italic = True
+        else:
+            p.add_run(_admission(record))
+            ticket = str(admission.get("ticketUrl") or "")
+            if ticket:
+                link_p = doc.add_paragraph()
+                _add_hyperlink(link_p, ticket, "Official admission page")
 
         if record.get("description"):
             p = doc.add_paragraph()
@@ -177,11 +222,19 @@ def export_yuranja_docx(*, path: Path | None = None) -> dict[str, Any]:
         ex_url, ad_url = _citations(record)
         p = doc.add_paragraph()
         p.add_run("Official exhibition URL: ").bold = True
-        p.add_run(ex_url or "—")
+        if ex_url:
+            _add_hyperlink(p, ex_url, "Official exhibition page")
+        else:
+            p.add_run("—")
 
         p = doc.add_paragraph()
-        p.add_run("Official admission URL: ").bold = True
-        p.add_run(ad_url or "none verified")
+        p.add_run("Admission check: ").bold = True
+        info_url = str(admission.get("informationUrl") or admission.get("ticketUrl") or ad_url or "")
+        info_label = str(admission.get("informationLabel") or "Official visitor information")
+        if info_url:
+            _add_hyperlink(p, info_url, info_label)
+        else:
+            p.add_run("none verified")
 
         p = doc.add_paragraph()
         p.add_run("Slug: ").bold = True

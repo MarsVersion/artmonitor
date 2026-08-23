@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import database
+import admission_links
 
 INSTITUTION_SUFFIXES = (
     " – nationalgalerie der gegenwart",
@@ -97,15 +98,24 @@ def parse_admission(entry_fee: str, amenities: str = "", last_updated: str = "")
     fee = normalize_text(entry_fee)
     fee_lower = fee.casefold()
     amenities_text = normalize_text(amenities)
-    reservation_required = bool(RESERVATION_HINT.search(fee) or RESERVATION_HINT.search(amenities_text))
+    reservation_hint = bool(RESERVATION_HINT.search(fee) or RESERVATION_HINT.search(amenities_text))
 
-    if not fee or fee_lower in {"unknown", "n/a", "na", "check current admission"}:
+    if not fee or fee_lower in {
+        "unknown",
+        "n/a",
+        "na",
+        "check current admission",
+        "admission not published — check the official visitor information",
+        "admission not published",
+    }:
         return {
             "status": "unknown",
-            "display": "Check current admission",
+            "display": "Admission not published — check the official visitor information",
             "fromPrice": "",
-            "reservationRequired": reservation_required,
+            "reservationRequired": None,
             "ticketUrl": "",
+            "informationUrl": "",
+            "informationLabel": "",
             "checkedAt": _checked_at(last_updated),
         }
 
@@ -115,8 +125,10 @@ def parse_admission(entry_fee: str, amenities: str = "", last_updated: str = "")
             "status": "free",
             "display": display,
             "fromPrice": "",
-            "reservationRequired": reservation_required,
+            "reservationRequired": True if reservation_hint else False,
             "ticketUrl": "",
+            "informationUrl": "",
+            "informationLabel": "",
             "checkedAt": _checked_at(last_updated),
         }
 
@@ -126,18 +138,22 @@ def parse_admission(entry_fee: str, amenities: str = "", last_updated: str = "")
             "status": "included",
             "display": fee,
             "fromPrice": price_match.group(0) if price_match else "",
-            "reservationRequired": reservation_required,
+            "reservationRequired": True if reservation_hint else False,
             "ticketUrl": "",
+            "informationUrl": "",
+            "informationLabel": "",
             "checkedAt": _checked_at(last_updated),
         }
 
-    if reservation_required and not PRICE_HINT.search(fee) and not FREE_HINT.search(fee):
+    if reservation_hint and not PRICE_HINT.search(fee) and not FREE_HINT.search(fee):
         return {
             "status": "reservation-required",
             "display": fee or "Reservation required",
             "fromPrice": "",
             "reservationRequired": True,
             "ticketUrl": "",
+            "informationUrl": "",
+            "informationLabel": "",
             "checkedAt": _checked_at(last_updated),
         }
 
@@ -146,8 +162,10 @@ def parse_admission(entry_fee: str, amenities: str = "", last_updated: str = "")
         "status": "paid",
         "display": fee,
         "fromPrice": price_match.group(0) if price_match else "",
-        "reservationRequired": reservation_required,
+        "reservationRequired": True if reservation_hint else False,
         "ticketUrl": "",
+        "informationUrl": "",
+        "informationLabel": "",
         "checkedAt": _checked_at(last_updated),
     }
 
@@ -268,16 +286,36 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         or row.get("last_updated")
     )
     if normalize_text(row.get("admission_status")):
+        reservation_raw = row.get("admission_reservation_required")
+        if normalize_text(row.get("admission_status")).casefold() == "unknown":
+            reservation_value = None
+        elif reservation_raw is None or reservation_raw == "":
+            reservation_value = None
+        else:
+            reservation_value = bool(reservation_raw)
         admission = {
             "status": normalize_text(row.get("admission_status")),
-            "display": entry_fee or "Check current admission",
+            "display": entry_fee or "Admission not published — check the official visitor information",
             "fromPrice": normalize_text(row.get("admission_from_price")),
-            "reservationRequired": bool(row.get("admission_reservation_required")),
+            "reservationRequired": reservation_value,
             "ticketUrl": normalize_text(row.get("admission_ticket_url")),
+            "informationUrl": normalize_text(row.get("admission_information_url")),
+            "informationLabel": normalize_text(row.get("admission_information_label")),
             "checkedAt": visitor_checked[:10] if visitor_checked else "",
         }
     else:
         admission = parse_admission(entry_fee, amenities, visitor_checked)
+
+    exhibition_url = normalize_text(row.get("exhibition_url") or source_url or exhibitions_url)
+    website = normalize_text(row.get("website"))
+    admission = admission_links.ensure_admission_links(
+        admission,
+        exhibition_url=exhibition_url,
+        website=website,
+        visitor=visitor or {},
+        checked_at=visitor_checked,
+        validate_reachability=False,
+    )
 
     public_summary = normalize_text(row.get("public_summary") or row.get("reason") or row.get("description"))
     yuranja_note = normalize_text(row.get("yuranjaNote") or row.get("yuranja_note"))
@@ -320,7 +358,7 @@ def enrich_exhibition_row(row: dict[str, Any], visitor_index: VisitorIndex) -> d
         "audio_guide_languages": audio_langs,
         "source_url": source_url or exhibitions_url,
         "exhibitions_url": exhibitions_url,
-        "exhibitionUrl": normalize_text(row.get("exhibition_url") or source_url or exhibitions_url),
+        "exhibitionUrl": exhibition_url,
         "status": normalize_text(row.get("status")),
         "category": normalize_text(row.get("category")),
         "importance": normalize_text(row.get("importance")),

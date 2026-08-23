@@ -1,6 +1,6 @@
 # Yuranja candidate exclusions
 
-Generated: **2026-08-23 19:57 UTC**
+Generated: **2026-08-23 20:20 UTC**
 
 Total excluded: **37**
 

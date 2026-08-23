@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   admissionDisplay,
+  admissionInformationLabel,
+  admissionInformationUrl,
   filterExhibitions,
   formatArtists,
   formatDateRange,
@@ -719,12 +721,18 @@ function ExhibitionCard({
   candidateMode?: boolean
 }) {
   const admission = admissionDisplay(row)
-  const reservationRequired = Boolean(row.admission?.reservationRequired)
+  const admissionUnknown = (row.admission?.status || 'unknown') === 'unknown'
+  const infoUrl = admissionInformationUrl(row)
+  const infoLabel = admissionInformationLabel(row)
+  const reservationRequired = row.admission?.reservationRequired
   const checkedAt = row.admission?.checkedAt || row.visitor_last_updated || row.dateChecked
   const editorial = normalizeReview(row.editorial_status || row.human_review_status || '')
   const sourceHref = row.exhibitionUrl || row.source_url
   const admissionCite = (row.citations || []).find(
-    (c) => c.type === 'admission' || c.field === 'admission',
+    (c) =>
+      c.type === 'admission' ||
+      c.type === 'admission_lookup' ||
+      c.field === 'admission',
   )
   const exhibitionCite = (row.citations || []).find(
     (c) => c.type === 'exhibition' || c.field === 'title' || c.field === 'dates',
@@ -797,15 +805,53 @@ function ExhibitionCard({
       <dl className="mt-4 grid gap-2 text-sm text-stone-700 sm:grid-cols-2">
         <div>
           <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
-            Entrance fee
+            Admission
           </dt>
-          <dd className="mt-1">{admission}</dd>
+          <dd className="mt-1">
+            {admissionUnknown ? (
+              <div className="space-y-1">
+                <p>Admission not published</p>
+                {infoUrl ? (
+                  <a
+                    href={infoUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+                  >
+                    {infoLabel} ↗
+                  </a>
+                ) : (
+                  <p className="text-xs text-stone-500">No official information URL available</p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <p>{admission}</p>
+                {row.admission?.ticketUrl ? (
+                  <a
+                    href={row.admission.ticketUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex text-stone-900 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"
+                  >
+                    Official admission page ↗
+                  </a>
+                ) : null}
+              </div>
+            )}
+          </dd>
         </div>
         <div>
           <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">
             Reservation
           </dt>
-          <dd className="mt-1">{reservationRequired ? 'Required' : 'Not required / unknown'}</dd>
+          <dd className="mt-1">
+            {reservationRequired === true
+              ? 'Required'
+              : reservationRequired === false
+                ? 'Not required'
+                : 'Unknown'}
+          </dd>
         </div>
         {row.openingHours ? (
           <div>
@@ -877,9 +923,9 @@ function ExhibitionCard({
             Open official exhibition source
           </a>
         ) : null}
-        {admissionCite?.url ? (
+        {admissionCite?.url || infoUrl ? (
           <a
-            href={admissionCite.url}
+            href={admissionCite?.url || infoUrl}
             target="_blank"
             rel="noreferrer noopener"
             className="text-stone-700 underline decoration-stone-300 underline-offset-4 hover:decoration-stone-600"

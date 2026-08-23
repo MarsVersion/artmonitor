@@ -632,17 +632,30 @@ def _yuranja_citations(record: dict[str, Any], *, checked_at: str) -> list[dict[
     )
 
     admission = record.get("admission") or {}
-    ticket_url = str(admission.get("ticketUrl") or record.get("website") or "").strip()
-    if admission.get("status") != "unknown" and ticket_url:
-        cites.append(
-            {
-                "type": "admission",
-                "url": ticket_url,
-                "publisher": publisher,
-                "supports": ["admission", "reservationRequired"],
-                "checkedAt": str(admission.get("checkedAt") or checked_at),
-            }
-        )
+    if admission.get("status") != "unknown":
+        ticket_url = str(admission.get("ticketUrl") or "").strip()
+        if ticket_url:
+            cites.append(
+                {
+                    "type": "admission",
+                    "url": ticket_url,
+                    "publisher": publisher,
+                    "supports": ["admission", "reservationRequired"],
+                    "checkedAt": str(admission.get("checkedAt") or checked_at),
+                }
+            )
+    else:
+        lookup_url = str(admission.get("informationUrl") or admission.get("ticketUrl") or "").strip()
+        if lookup_url:
+            cites.append(
+                {
+                    "type": "admission_lookup",
+                    "url": lookup_url,
+                    "publisher": publisher,
+                    "supports": ["admissionLookup"],
+                    "checkedAt": str(admission.get("checkedAt") or checked_at),
+                }
+            )
     return cites
 
 
@@ -663,26 +676,16 @@ def _stable_slug(record: dict[str, Any], used: set[str]) -> str:
 
 
 def _admission_for_candidate(record: dict[str, Any]) -> dict[str, Any]:
-    admission = dict(record.get("admission") or {})
-    status = str(admission.get("status") or "unknown")
-    if status == "unknown":
-        return {
-            "status": "unknown",
-            "display": "Check current admission",
-            "fromPrice": "",
-            "reservationRequired": admission.get("reservationRequired") if "reservationRequired" in admission else None,
-            "ticketUrl": "",
-            "checkedAt": admission.get("checkedAt") or "",
-        }
-    out = {
-        "status": status,
-        "display": admission.get("display") or "Check current admission",
-        "fromPrice": admission.get("fromPrice") or "",
-        "reservationRequired": bool(admission.get("reservationRequired")),
-        "ticketUrl": admission.get("ticketUrl") or "",
-        "checkedAt": admission.get("checkedAt") or "",
-    }
-    return out
+    import admission_links
+
+    admission = admission_links.ensure_admission_links(
+        dict(record.get("admission") or {}),
+        exhibition_url=str(record.get("exhibitionUrl") or record.get("source_url") or ""),
+        website=str(record.get("website") or ""),
+        checked_at=str(record.get("dateChecked") or ""),
+        validate_reachability=False,
+    )
+    return admission
 
 
 def to_candidate_shape(
@@ -794,8 +797,28 @@ def _write_review_report(
             dates = c.get("dates") or {}
             admission = c.get("admission") or {}
             ex_cite = next((x for x in c.get("citations", []) if x.get("type") == "exhibition"), {})
-            ad_cite = next((x for x in c.get("citations", []) if x.get("type") == "admission"), {})
+            ad_cite = next(
+                (
+                    x
+                    for x in c.get("citations", [])
+                    if x.get("type") in {"admission", "admission_lookup"}
+                ),
+                {},
+            )
             missing = c.get("missingOptionalFields") or []
+            info_url = admission.get("informationUrl") or admission.get("ticketUrl") or ""
+            info_label = admission.get("informationLabel") or "Official visitor information"
+            if admission.get("status") == "unknown":
+                admission_line = (
+                    f"- **Admission:** Admission not published — "
+                    f"[{info_label}]({info_url})"
+                    if info_url
+                    else "- **Admission:** Admission not published (no official URL)"
+                )
+            else:
+                admission_line = (
+                    f"- **Admission:** {admission.get('display', '—')} ({admission.get('status', 'unknown')})"
+                )
             lines.extend(
                 [
                     f"### {c.get('title', '—')}",
@@ -805,7 +828,7 @@ def _write_review_report(
                     f"- **Institution:** {c.get('venue', '—')}",
                     f"- **Dates:** {dates.get('start', '—')} → {dates.get('end', '—')}",
                     f"- **Status:** {c.get('status', '—')}",
-                    f"- **Admission:** {admission.get('display', '—')} ({admission.get('status', 'unknown')})",
+                    admission_line,
                     f"- **Editorial score:** {c.get('editorialScore', 0)}",
                     f"- **Selection reason:** {c.get('selectionReason', '—')}",
                     f"- **Review status:** {c.get('humanReviewStatus', 'pending')}",
@@ -813,8 +836,8 @@ def _write_review_report(
                     f"- **Exhibition citation:** [{ex_cite.get('url', '—')}]({ex_cite.get('url', '')})",
                     f"- **Admission citation:** "
                     + (
-                        f"[{ad_cite.get('url')}]({ad_cite.get('url')})"
-                        if ad_cite.get("url")
+                        f"[{info_label if admission.get('status') == 'unknown' else 'Official admission'}]({ad_cite.get('url') or info_url})"
+                        if (ad_cite.get("url") or info_url)
                         else "none verified"
                     ),
                     "",

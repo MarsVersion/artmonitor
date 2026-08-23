@@ -37,8 +37,10 @@ export type ExhibitionAdmission = {
   status: AdmissionStatus
   display: string
   fromPrice?: string
-  reservationRequired?: boolean
+  reservationRequired?: boolean | null
   ticketUrl?: string
+  informationUrl?: string
+  informationLabel?: string
   checkedAt?: string
 }
 

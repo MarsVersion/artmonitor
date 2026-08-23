@@ -39,7 +39,9 @@ class YuranjaModelTests(unittest.TestCase):
         )
         self.assertEqual(record["admission"]["status"], "unknown")
         self.assertEqual(record["editorial_status"], "pending")
-        self.assertNotEqual(record["admission"]["display"].casefold(), "free")
+        self.assertNotIn("free", record["admission"]["display"].casefold())
+        self.assertIsNone(record["admission"]["reservationRequired"])
+        self.assertTrue(record["admission"].get("informationUrl"))
 
     def test_past_shows_are_archived(self) -> None:
         record = ym.build_yuranja_record(

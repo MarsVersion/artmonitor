@@ -133,6 +133,8 @@ def _ensure_exhibition_columns(conn: sqlite3.Connection) -> None:
         "admission_reservation_required": "INTEGER DEFAULT 0",
         "admission_ticket_url": "TEXT",
         "admission_checked_at": "TEXT",
+        "admission_information_url": "TEXT",
+        "admission_information_label": "TEXT",
         "exhibition_url": "TEXT",
         "citations_json": "TEXT",
         "dedupe_key": "TEXT",
@@ -231,9 +233,10 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             opening_hours, description, format, categories, media_types,
             admission_status, admission_display, admission_from_price,
             admission_reservation_required, admission_ticket_url, admission_checked_at,
+            admission_information_url, admission_information_label,
             exhibition_url, citations_json, dedupe_key, is_duplicate,
             archive_status, editorial_status, date_checked, amenities
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET
             title = excluded.title,
             start_date = excluded.start_date,
@@ -259,6 +262,8 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             admission_reservation_required = excluded.admission_reservation_required,
             admission_ticket_url = excluded.admission_ticket_url,
             admission_checked_at = excluded.admission_checked_at,
+            admission_information_url = excluded.admission_information_url,
+            admission_information_label = excluded.admission_information_label,
             exhibition_url = excluded.exhibition_url,
             citations_json = excluded.citations_json,
             dedupe_key = excluded.dedupe_key,
@@ -298,11 +303,18 @@ def upsert_exhibition(conn: sqlite3.Connection, record: dict[str, Any]) -> None:
             record.get("categories", "[]"),
             record.get("media_types", "[]"),
             record.get("admission_status", "unknown"),
-            record.get("admission_display", "Check current admission"),
+            record.get("admission_display", "Admission not published — check the official visitor information"),
             record.get("admission_from_price", ""),
-            int(bool(record.get("admission_reservation_required"))),
+            (
+                None
+                if record.get("admission_reservation_required") is None
+                and str(record.get("admission_status", "")).casefold() == "unknown"
+                else int(bool(record.get("admission_reservation_required")))
+            ),
             record.get("admission_ticket_url", ""),
             record.get("admission_checked_at", ""),
+            record.get("admission_information_url", ""),
+            record.get("admission_information_label", ""),
             record.get("exhibition_url", ""),
             record.get("citations_json", "[]"),
             record.get("dedupe_key", ""),

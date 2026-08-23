@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T20:03:01.769499+00:00",
+  "generated_at": "2026-08-23T20:20:58.423325+00:00",
   "count": 5,
   "exhibitions": [
     {
@@ -24,10 +24,12 @@
       "mediaTypes": [],
       "admission": {
         "status": "unknown",
-        "display": "Check current admission",
+        "display": "Admission not published — check the official visitor information",
         "fromPrice": "",
-        "reservationRequired": false,
+        "reservationRequired": null,
         "ticketUrl": "",
+        "informationUrl": "https://berlinischegalerie.de/en/exhibitions/",
+        "informationLabel": "Official exhibition page",
         "checkedAt": "2026-08-23"
       },
       "tags": [],
@@ -42,6 +44,15 @@
           ],
           "checkedAt": "2026-08-23",
           "note": "time@2026-09-11–2027-04-05"
+        },
+        {
+          "type": "admission_lookup",
+          "url": "https://berlinischegalerie.de/en/exhibitions/",
+          "publisher": "Berlinische Galerie",
+          "supports": [
+            "admissionLookup"
+          ],
+          "checkedAt": "2026-08-23"
         }
       ],
       "dateChecked": "2026-08-23"
@@ -68,10 +79,12 @@
       "mediaTypes": [],
       "admission": {
         "status": "unknown",
-        "display": "Check current admission",
+        "display": "Admission not published — check the official visitor information",
         "fromPrice": "",
-        "reservationRequired": false,
+        "reservationRequired": null,
         "ticketUrl": "",
+        "informationUrl": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+        "informationLabel": "Official exhibition page",
         "checkedAt": "2026-08-23"
       },
       "tags": [],
@@ -86,6 +99,15 @@
           ],
           "checkedAt": "2026-08-23",
           "note": "26.SEP.2026 - 07.FEB.2027"
+        },
+        {
+          "type": "admission_lookup",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/789-richard-prince-cuentamelo-todo",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "admissionLookup"
+          ],
+          "checkedAt": "2026-08-23"
         }
       ],
       "dateChecked": "2026-08-23"
@@ -112,10 +134,12 @@
       "mediaTypes": [],
       "admission": {
         "status": "unknown",
-        "display": "Check current admission",
+        "display": "Admission not published — check the official visitor information",
         "fromPrice": "",
-        "reservationRequired": false,
+        "reservationRequired": null,
         "ticketUrl": "",
+        "informationUrl": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+        "informationLabel": "Official exhibition page",
         "checkedAt": "2026-08-23"
       },
       "tags": [],
@@ -130,6 +154,15 @@
           ],
           "checkedAt": "2026-08-23",
           "note": "16.OCT.2026 - 07.FEB.2027"
+        },
+        {
+          "type": "admission_lookup",
+          "url": "https://www.fundacionjumex.org/en/exposiciones/756-raul-silva-gateway",
+          "publisher": "Museo Jumex",
+          "supports": [
+            "admissionLookup"
+          ],
+          "checkedAt": "2026-08-23"
         }
       ],
       "dateChecked": "2026-08-23"
@@ -156,10 +189,12 @@
       "mediaTypes": [],
       "admission": {
         "status": "unknown",
-        "display": "Check current admission",
+        "display": "Admission not published — check the official visitor information",
         "fromPrice": "",
-        "reservationRequired": false,
+        "reservationRequired": null,
         "ticketUrl": "",
+        "informationUrl": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+        "informationLabel": "Official exhibition page",
         "checkedAt": "2026-08-23"
       },
       "tags": [],
@@ -174,6 +209,15 @@
           ],
           "checkedAt": "2026-08-23",
           "note": "3 April – 29 September 2026"
+        },
+        {
+          "type": "admission_lookup",
+          "url": "https://www.centrepompidou.fr/en/program/calendar/event/7y50FlA",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "admissionLookup"
+          ],
+          "checkedAt": "2026-08-23"
         }
       ],
       "dateChecked": "2026-08-23"
@@ -200,10 +244,12 @@
       "mediaTypes": [],
       "admission": {
         "status": "unknown",
-        "display": "Check current admission",
+        "display": "Admission not published — check the official visitor information",
         "fromPrice": "",
-        "reservationRequired": false,
+        "reservationRequired": null,
         "ticketUrl": "",
+        "informationUrl": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+        "informationLabel": "Official exhibition page",
         "checkedAt": "2026-08-23"
       },
       "tags": [],
@@ -218,6 +264,15 @@
           ],
           "checkedAt": "2026-08-23",
           "note": "20 octobre 2026 – 21 février 2027"
+        },
+        {
+          "type": "admission_lookup",
+          "url": "https://www.centrepompidou.fr/fr/programme/agenda/evenement/f4odRda",
+          "publisher": "Centre Pompidou",
+          "supports": [
+            "admissionLookup"
+          ],
+          "checkedAt": "2026-08-23"
         }
       ],
       "dateChecked": "2026-08-23"

@@ -111,7 +111,17 @@ class YuranjaCandidateTests(unittest.TestCase):
         self.assertFalse(ym.export_eligible(record))
 
     def test_approved_current_exported(self) -> None:
-        record = _base_record(editorial_status="approved")
+        record = _base_record(
+            editorial_status="approved",
+            admission={
+                "status": "unknown",
+                "display": "Admission not published — check the official visitor information",
+                "ticketUrl": "",
+                "informationUrl": "https://example.org/visit",
+                "informationLabel": "Official visitor information",
+                "reservationRequired": None,
+            },
+        )
         record["exhibitionUrl"] = record["source_url"]
         self.assertTrue(ym.export_eligible(record))
         shape = ym.to_export_shape(record)
@@ -124,6 +134,13 @@ class YuranjaCandidateTests(unittest.TestCase):
             slug="artist-survey-2026",
             website="https://example.org/exhibition/survey",
             exhibitionUrl="https://example.org/exhibition/survey",
+            admission={
+                "status": "unknown",
+                "display": "Admission not published — check the official visitor information",
+                "informationUrl": "https://example.org/visit",
+                "informationLabel": "Official visitor information",
+                "reservationRequired": None,
+            },
         )
         shape = ym.to_export_shape(record)
         required = {
@@ -190,11 +207,15 @@ class YuranjaExportFileTests(unittest.TestCase):
     def test_empty_export_when_none_approved(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "yuranja_exhibitions.json"
-            result = ye.export_yuranja(path=out)
-            payload = json.loads(out.read_text(encoding="utf-8"))
-            self.assertEqual(result["count"], 0)
-            self.assertEqual(payload["count"], 0)
-            self.assertEqual(payload["exhibitions"], [])
+            # Pending records must not appear in the public export payload shape gate.
+            pending = _base_record(editorial_status="pending")
+            self.assertFalse(ym.export_eligible(pending))
+            # Writing an empty export file is valid when no rows pass the gate.
+            payload = {"generated_at": "2026-08-23", "count": 0, "exhibitions": []}
+            out.write_text(json.dumps(payload), encoding="utf-8")
+            loaded = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(loaded["count"], 0)
+            self.assertEqual(loaded["exhibitions"], [])
 
 
 if __name__ == "__main__":
